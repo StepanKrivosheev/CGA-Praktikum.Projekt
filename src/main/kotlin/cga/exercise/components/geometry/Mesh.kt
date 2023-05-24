@@ -1,8 +1,5 @@
 package cga.exercise.components.geometry
 
-import org.lwjgl.opengl.GL11
-import org.lwjgl.opengl.GL15
-import org.lwjgl.opengl.GL20
 import org.lwjgl.opengl.GL30.*
 
 /**
@@ -24,28 +21,21 @@ class Mesh(vertexdata: FloatArray, indexdata: IntArray, attributes: Array<Vertex
 
     init {
         // todo Aufgabe 1.2.2 (shovel geometry data to GPU and tell OpenGL how to interpret it)
-
         vaoId = glGenVertexArrays()
         glBindVertexArray(vaoId)
 
         vboId = glGenBuffers()
-        glBindBuffer(GL_ARRAY_BUFFER,vboId)
-        GL15.glBufferData(GL_ARRAY_BUFFER,vertexdata, GL_STATIC_DRAW)
+        glBindBuffer(GL_ARRAY_BUFFER, vboId)
+        glBufferData(GL_ARRAY_BUFFER, vertexdata, GL_STATIC_DRAW)
 
-        var i = 0
-        for (x in attributes){
-            GL20.glVertexAttribPointer(i,attributes[i].n,attributes[i].type,false,attributes[i].stride,
-                    attributes[i].offset.toLong())
+        for (i in attributes.indices) {
             glEnableVertexAttribArray(i)
-            i++
+            glVertexAttribPointer(i, attributes[i].n, attributes[i].type, false, attributes[i].stride, attributes[i].offset)
         }
 
         iboId = glGenBuffers()
-        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER,iboId)
-        GL15.glBufferData(GL_ELEMENT_ARRAY_BUFFER,indexdata, GL_STATIC_DRAW)
-        glBindVertexArray(0)
-        glBindBuffer(GL_ARRAY_BUFFER,0)
-        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER,0)
+        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, iboId)
+        glBufferData(GL_ELEMENT_ARRAY_BUFFER, indexdata, GL_STATIC_DRAW)
     }
 
     /**
@@ -53,9 +43,8 @@ class Mesh(vertexdata: FloatArray, indexdata: IntArray, attributes: Array<Vertex
      */
     fun render() {
         glBindVertexArray(vaoId)
-        GL11.glDrawElements(GL_TRIANGLES,indexcount, GL_UNSIGNED_INT,0)
+        glDrawElements(GL_TRIANGLES, indexcount, GL_UNSIGNED_INT, 0)
         glBindVertexArray(0)
-
     }
 
     /**

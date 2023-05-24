@@ -10,7 +10,7 @@ open class Transformable(private var modelMatrix: Matrix4f = Matrix4f(), var par
      * @return modelMatrix
      */
     fun getModelMatrix(): Matrix4f {
-        return modelMatrix
+        return Matrix4f(modelMatrix)
     }
 
     /**
@@ -20,8 +20,17 @@ open class Transformable(private var modelMatrix: Matrix4f = Matrix4f(), var par
      * @return world modelMatrix
      */
     fun getWorldModelMatrix(): Matrix4f {
-        // todo
-        throw NotImplementedError()
+        /**Lösung mit Local**/
+//        if (parent != null)  return modelMatrix.mulLocal(parent?.getWorldModelMatrix())
+//        return modelMatrix
+
+        val worldModelMatrix = Matrix4f(modelMatrix)
+        var currentParent = parent
+        while (currentParent != null) {
+            worldModelMatrix.set(parent?.getWorldModelMatrix() ?: Matrix4f()).mul(modelMatrix)
+            currentParent = currentParent.parent
+        }
+        return worldModelMatrix
     }
 
     /**
@@ -34,7 +43,6 @@ open class Transformable(private var modelMatrix: Matrix4f = Matrix4f(), var par
         modelMatrix.rotateX(pitch)
         modelMatrix.rotateY(yaw)
         modelMatrix.rotateZ(roll)
-        throw NotImplementedError()
     }
 
     /**
@@ -45,11 +53,9 @@ open class Transformable(private var modelMatrix: Matrix4f = Matrix4f(), var par
      * @param altMidpoint rotation center
      */
     fun rotateAroundPoint(pitch: Float, yaw: Float, roll: Float, altMidpoint: Vector3f) {
-        modelMatrix.translate(altMidpoint)
-        modelMatrix.rotateX(pitch)
-        modelMatrix.rotateY(yaw)
-        modelMatrix.rotateZ(roll)
-
+        modelMatrix = Matrix4f().translate(altMidpoint.negate()).mul(modelMatrix)
+        modelMatrix = Matrix4f().rotateXYZ(pitch, yaw, roll).mul(modelMatrix)
+        modelMatrix = Matrix4f().translate(altMidpoint.negate()).mul(modelMatrix)
     }
 
     /**
@@ -57,7 +63,7 @@ open class Transformable(private var modelMatrix: Matrix4f = Matrix4f(), var par
      * @param deltaPos delta positions
      */
     fun translate(deltaPos: Vector3f) {
-       modelMatrix.translate(deltaPos)
+        modelMatrix.translate(deltaPos)
     }
 
     /**
@@ -66,8 +72,7 @@ open class Transformable(private var modelMatrix: Matrix4f = Matrix4f(), var par
      * @param deltaPos delta positions (x, y, z)
      */
     fun preTranslate(deltaPos: Vector3f) {
-        // todo
-        throw NotImplementedError()
+        modelMatrix.translateLocal(deltaPos)
     }
 
     /**
@@ -84,7 +89,9 @@ open class Transformable(private var modelMatrix: Matrix4f = Matrix4f(), var par
      * @return position
      */
     fun getPosition(): Vector3f {
-        throw NotImplementedError()
+        val position = Vector3f()
+        modelMatrix.getColumn(3, position)
+        return position
     }
 
     /**
@@ -93,8 +100,9 @@ open class Transformable(private var modelMatrix: Matrix4f = Matrix4f(), var par
      * @return position
      */
     fun getWorldPosition(): Vector3f {
-        // todo
-        throw NotImplementedError()
+        val position = Vector3f()
+        getWorldModelMatrix().getColumn(3, position)
+        return position
     }
 
     /**
@@ -103,8 +111,9 @@ open class Transformable(private var modelMatrix: Matrix4f = Matrix4f(), var par
      * @return x-axis
      */
     fun getXAxis(): Vector3f {
-        // todo
-        throw NotImplementedError()
+        val result = Vector3f()
+        modelMatrix.getColumn(0, result)
+        return result.normalize()
     }
 
     /**
@@ -113,8 +122,9 @@ open class Transformable(private var modelMatrix: Matrix4f = Matrix4f(), var par
      * @return y-axis
      */
     fun getYAxis(): Vector3f {
-        // todo
-        throw NotImplementedError()
+        val result = Vector3f()
+        modelMatrix.getColumn(1, result)
+        return result.normalize()
     }
 
     /**
@@ -123,8 +133,9 @@ open class Transformable(private var modelMatrix: Matrix4f = Matrix4f(), var par
      * @return z-axis
      */
     fun getZAxis(): Vector3f {
-        // todo
-        throw NotImplementedError()
+        val result = Vector3f()
+        modelMatrix.getColumn(2, result)
+        return result.normalize()
     }
 
     /**
@@ -133,8 +144,9 @@ open class Transformable(private var modelMatrix: Matrix4f = Matrix4f(), var par
      * @return x-axis
      */
     fun getWorldXAxis(): Vector3f {
-        // todo
-        throw NotImplementedError()
+        val result = Vector3f()
+        getWorldModelMatrix().getColumn(0, result)
+        return result.normalize()
     }
 
     /**
@@ -143,8 +155,9 @@ open class Transformable(private var modelMatrix: Matrix4f = Matrix4f(), var par
      * @return y-axis
      */
     fun getWorldYAxis(): Vector3f {
-        // todo
-        throw NotImplementedError()
+        val result = Vector3f()
+        getWorldModelMatrix().getColumn(1, result)
+        return result.normalize()
     }
 
     /**
@@ -153,7 +166,8 @@ open class Transformable(private var modelMatrix: Matrix4f = Matrix4f(), var par
      * @return z-axis
      */
     fun getWorldZAxis(): Vector3f {
-        // todo
-        throw NotImplementedError()
+        val result = Vector3f()
+        getWorldModelMatrix().getColumn(2, result)
+        return result.normalize()
     }
 }
