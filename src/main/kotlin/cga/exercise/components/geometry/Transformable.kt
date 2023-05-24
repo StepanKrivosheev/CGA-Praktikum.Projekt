@@ -1,5 +1,6 @@
 package cga.exercise.components.geometry
 
+import org.joml.Math
 import org.joml.Matrix4f
 import org.joml.Vector3f
 
@@ -40,9 +41,9 @@ open class Transformable(private var modelMatrix: Matrix4f = Matrix4f(), var par
      * @param roll radiant angle around z-axis ccw
      */
     fun rotate(pitch: Float, yaw: Float, roll: Float) {
-        modelMatrix.rotateX(pitch)
-        modelMatrix.rotateY(yaw)
-        modelMatrix.rotateZ(roll)
+        modelMatrix.rotateX(Math.toRadians(pitch))
+        modelMatrix.rotateY(Math.toRadians(yaw))
+        modelMatrix.rotateZ(Math.toRadians(roll))
     }
 
     /**
