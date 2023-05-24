@@ -12,6 +12,7 @@ import cga.exercise.components.geometry.Renderable
 import org.joml.Math
 import org.joml.Matrix4f
 import org.joml.Vector3f
+import org.lwjgl.glfw.GLFW.*
 
 /**
  * Created 29.03.2023.
@@ -89,7 +90,7 @@ class Scene(private val window: GameWindow) {
         sphereList.add(sphere)
 
         sphereRenderable = Renderable(sphereList)
-        sphereRenderable.scale(Vector3f(0.5f))
+        //sphereRenderable.scale(Vector3f(0.5f))
 
         groundRenderable = Renderable(groundList)
         //groundRenderable.rotate(90f, 0f, 0f)
@@ -97,7 +98,7 @@ class Scene(private val window: GameWindow) {
 
         camera.parent = sphereRenderable
 
-        camera.rotate(Math.toRadians(-20f), 0f, 0f)
+        camera.rotate((-20f), 0f, 0f)
         camera.translate(Vector3f(0.0f, 0.0f, 4.0f))
 
         enableDepthTest(GL_LESS)
@@ -117,7 +118,22 @@ class Scene(private val window: GameWindow) {
 
     }
 
-    fun update(dt: Float, t: Float) {}
+    fun update(dt: Float, t: Float) {
+        if (window.getKeyState(GLFW_KEY_W)){
+            sphereRenderable.translate(deltaPos = Vector3f(0f,0f,dt*-30f))
+        }
+        if (window.getKeyState(GLFW_KEY_S)){
+            sphereRenderable.translate(deltaPos = Vector3f(0f,0f,dt*30f))
+        }
+        if (window.getKeyState(GLFW_KEY_A)){
+
+            sphereRenderable.rotateAroundPoint(0f,dt*3f,0f,sphereRenderable.getPosition())
+        }
+        if (window.getKeyState(GLFW_KEY_D)){
+
+            sphereRenderable.rotateAroundPoint(0f,dt*-3f,0f,sphereRenderable.getPosition())
+        }
+    }
 
     fun onKey(key: Int, scancode: Int, action: Int, mode: Int) {}
 
