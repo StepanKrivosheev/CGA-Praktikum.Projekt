@@ -11,14 +11,14 @@ uniform mat4 model_matrix = mat4(1.0, 0.0, 0.0, 0.0,
                                  0.0, 0.0, 1.0, 0.0,
                                  0.0, 0.0, 0.0, 1.0);
 // world to camera (2.4.2)
-// uniform mat4 view_matrix;
+uniform mat4 view_matrix;
 // camera to clipping (2.4.2)
-// uniform mat4 proj_matrix;
+uniform mat4 proj_matrix;
 
 // Hint: Packing your data passed to the fragment shader into a struct like this helps to keep the code readable!
 out struct VertexData
 {
-    vec3 color;
+    vec3 viewSpaceNormal;
 } vertexData;
 
 void main(){
@@ -28,15 +28,11 @@ void main(){
     vec4 objectSpacePos = vec4(position, 1.0);
     // Calculate world space position by applying the model matrix
     vec4 worldSpacePos = model_matrix * objectSpacePos;
-
     // Write result to gl_Position
     // Note: z-coordinate must be flipped to get valid NDC coordinates. This will later be hidden in the projection matrix.
-    gl_Position = worldSpacePos * vec4(1.0, 1.0, -1.0, 1.0);
+    gl_Position = proj_matrix * view_matrix * worldSpacePos;
     // Green color with some variation due to z coordinate
+    //vertexData.color = vec3(0.0, worldSpacePos.z + 0.5, 0.0);
     vec4 objectSpaceNorm = vec4( normal, 0.0);
-    vec4 worldSpaceNorm = model_matrix * objectSpaceNorm;
-    float r = sqrt(pow(worldSpaceNorm.x,2.0));
-    float g = sqrt(pow(worldSpaceNorm.y,2.0));
-    float b = sqrt(pow(worldSpaceNorm.z,2.0));
-    vertexData.color = vec3(r,g,b);
+    vertexData.viewSpaceNormal = vec3(view_matrix * model_matrix * objectSpaceNorm);
 }
