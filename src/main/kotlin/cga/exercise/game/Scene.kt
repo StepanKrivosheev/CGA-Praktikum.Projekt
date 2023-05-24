@@ -45,7 +45,7 @@ class Scene(private val window: GameWindow) {
         val indices = intArrayOf(
             0, 1, 2,
             0, 2, 4,
-            4, 2, 3
+            4, 2, 1
         )
 
         val position = VertexAttribute(3, GL_FLOAT,24,0)
