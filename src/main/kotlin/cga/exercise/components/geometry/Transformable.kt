@@ -22,8 +22,9 @@ open class Transformable(private var modelMatrix: Matrix4f = Matrix4f(), var par
      */
     fun getWorldModelMatrix(): Matrix4f {
         /**Lösung mit Local**/
-//        if (parent != null)  return modelMatrix.mulLocal(parent?.getWorldModelMatrix())
-//        return modelMatrix
+//        val worldModelMatrix = Matrix4f(modelMatrix)
+//        if (parent != null)  return worldModelMatrix.mulLocal(parent?.getWorldModelMatrix())
+//        return worldModelMatrix
 
         val worldModelMatrix = Matrix4f(modelMatrix)
         var currentParent = parent

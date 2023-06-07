@@ -13,7 +13,7 @@ import java.nio.file.Paths
  * Created by Fabian on 16.09.2017.
  */
 class ShaderProgram(vertexShaderPath: String, fragmentShaderPath: String) {
-    private var programID: Int = 0
+    var programID: Int = 0
     //Matrix buffers for setting matrix uniforms. Prevents allocation for each uniform
     private val m4x4buf: FloatBuffer = BufferUtils.createFloatBuffer(16)
 
@@ -55,6 +55,13 @@ class ShaderProgram(vertexShaderPath: String, fragmentShaderPath: String) {
         if (location != -1) {
             value.get(m4x4buf)
             GL20.glUniformMatrix4fv(location, transpose, m4x4buf)
+        }
+    }
+
+    fun setUniform(name: String, value: Int) {
+        val location = GL20.glGetUniformLocation(programID, name)
+        if (location != -1) {
+            GL20.glUniform1i(location, value)
         }
     }
 
