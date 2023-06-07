@@ -12,10 +12,13 @@ import cga.exercise.components.geometry.Mesh
 import cga.exercise.components.geometry.Renderable
 import cga.exercise.components.texture.Texture2D
 import cga.exercise.components.texture.Texture2D.Companion.invoke
+import cga.framework.ModelLoader
+import cga.framework.ModelLoader.loadModel
 import org.joml.Math
 import org.joml.Vector2f
 import org.joml.Vector3f
 import org.lwjgl.glfw.GLFW.*
+import kotlin.math.PI
 
 /**
  * Created 29.03.2023.
@@ -35,6 +38,7 @@ class Scene(private val window: GameWindow) {
     private val groundRenderable : Renderable
     //private val sphereRenderable : Renderable
     private val camera = TronCamera()
+    private val tronBike : Renderable? = loadModel("assets/Light Cycle/Light Cycle/HQ_Movie cycle.obj", (-90.0f* PI/180).toFloat(), (90.0f* PI/180).toFloat(), 0.0f)
 
 
     //scene setup
@@ -97,22 +101,15 @@ class Scene(private val window: GameWindow) {
         val groundMaterial = Material(groundDiff, groundEmit, groundSpec, 60.0f, Vector2f(64.0f, 64.0f))
 
         ground = Mesh(vertexData1, indexData1, objAttributes1, groundMaterial)
-        //ground = Mesh(vertexData1, indexData1, objAttributes1)
-
 
         groundList.add(ground)
-        //sphereList.add(sphere)
-
-        //sphereRenderable = Renderable(sphereList)
-        //sphereRenderable.scale(Vector3f(0.5f))
-
         groundRenderable = Renderable(groundList)
-        //groundRenderable.rotate(90f, 0f, 0f)
-        //groundRenderable.scale(Vector3f(0.7f))
 
-        //camera.parent = groundRenderable
+        tronBike?.scale(Vector3f(0.8f))
 
-        camera.rotate(Math.toRadians(-20f), 0f, 0f)
+        camera.parent = tronBike
+
+        camera.rotate(Math.toRadians(-35f), 0f, 0f)
         camera.translate(Vector3f(0.0f, 0.0f, 4.0f))
 
 
@@ -130,22 +127,23 @@ class Scene(private val window: GameWindow) {
 
         camera.bind(staticShader)
         groundRenderable.render(staticShader)
+        tronBike?.render(staticShader)
         //sphereRenderable.render(staticShader)
-        update(dt*10f, t)
+        update(dt*5f, t)
 
     }
 
     fun update(dt: Float, t: Float) {
-//        if (window.getKeyState(GLFW_KEY_W)) {
-//            sphereRenderable.translate(Vector3f(0f, 0f, -t*dt))
-//        } else if (window.getKeyState(GLFW_KEY_S)) {
-//            sphereRenderable.translate(Vector3f(0f, 0f , t*dt))
-//        } else if (window.getKeyState(GLFW_KEY_A)) {
-//            sphereRenderable.rotate(0f, Math.toRadians(t)*dt, 0f)
-//        } else if (window.getKeyState(GLFW_KEY_D)) {
-//            sphereRenderable.rotate(0f, Math.toRadians(-t)*dt, 0f)
-//        }
-
+        if (window.getKeyState(GLFW_KEY_W)) {
+            tronBike?.translate(Vector3f(0f, 0f, -t*dt))
+            if (window.getKeyState(GLFW_KEY_A)) {
+                tronBike?.rotate(0f, Math.toRadians(t)*dt*10, 0f)
+            } else if (window.getKeyState(GLFW_KEY_D)) {
+                tronBike?.rotate(0f, Math.toRadians(-t) * dt*10, 0f)
+            }
+        } else if (window.getKeyState(GLFW_KEY_S)) {
+            tronBike?.translate(Vector3f(0f, 0f , t*dt))
+        }
     }
 
     fun onKey(key: Int, scancode: Int, action: Int, mode: Int) {}
