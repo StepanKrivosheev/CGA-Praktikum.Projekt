@@ -1,6 +1,7 @@
 package cga.exercise.game
 
 import cga.exercise.components.camera.TronCamera
+import cga.exercise.components.geometry.Material
 import cga.exercise.components.shader.ShaderProgram
 import cga.framework.GLError
 import cga.framework.GameWindow
@@ -9,9 +10,12 @@ import org.lwjgl.opengl.GL30.*
 import cga.exercise.components.geometry.VertexAttribute
 import cga.exercise.components.geometry.Mesh
 import cga.exercise.components.geometry.Renderable
+import cga.exercise.components.texture.Texture2D
+import cga.exercise.components.texture.Texture2D.Companion.invoke
 import org.joml.Math
-import org.joml.Matrix4f
+import org.joml.Vector2f
 import org.joml.Vector3f
+import org.lwjgl.glfw.GLFW.*
 
 /**
  * Created 29.03.2023.
@@ -19,22 +23,23 @@ import org.joml.Vector3f
 class Scene(private val window: GameWindow) {
     private val staticShader: ShaderProgram = ShaderProgram("assets/shaders/tron_vert.glsl", "assets/shaders/tron_frag.glsl")
 
-    private val simpleMesh: Mesh
-    private val sphere: Mesh
+    //private val simpleMesh: Mesh
+    //private val sphere: Mesh
     private val ground: Mesh
-    private val groundMatrix: Matrix4f = Matrix4f()
-    private val sphereMatrix: Matrix4f = Matrix4f()
+    //private val groundMatrix: Matrix4f = Matrix4f()
+    //private val sphereMatrix: Matrix4f = Matrix4f()
     private val objRes1 = OBJLoader.loadOBJ("assets/models/ground.obj")
     private val objRes = OBJLoader.loadOBJ("assets/models/sphere.obj")
     private val sphereList = mutableListOf<Mesh>()
     private val groundList = mutableListOf<Mesh>()
     private val groundRenderable : Renderable
-    private val sphereRenderable : Renderable
+    //private val sphereRenderable : Renderable
     private val camera = TronCamera()
 
 
     //scene setup
     init {
+        /*
         val vertices = floatArrayOf(
             -0.5f, -0.5f, 0.0f, 0.0f, 0.0f, 1.0f,
             0.5f, -0.5f, 0.0f, 0.0f, 0.0f, 1.0f,
@@ -68,8 +73,7 @@ class Scene(private val window: GameWindow) {
         val objAttributes = arrayOf<VertexAttribute>(objPos, objColor, objNorm)
 
         sphere = Mesh(vertexData, indexData, objAttributes)
-
-//        sphereMatrix.scale(0.5f)
+        */
 
 
         val objMesh1: OBJLoader.OBJMesh = objRes1.objects[0].meshes[0]
@@ -78,27 +82,40 @@ class Scene(private val window: GameWindow) {
         val indexData1 = objMesh1.indexData
 
         val objPos1 = VertexAttribute(3, GL_FLOAT, 32, 0)
-        val objColor1 = VertexAttribute(2, GL_FLOAT, 32,12)
+        val objTexture1 = VertexAttribute(2, GL_FLOAT, 32,12)
         val objNorm1 = VertexAttribute(3, GL_FLOAT, 32,20)
-        val objAttributes1 = arrayOf<VertexAttribute>(objPos1, objColor1, objNorm1)
+        val objAttributes1 = arrayOf<VertexAttribute>(objPos1, objTexture1, objNorm1)
 
-        ground = Mesh(vertexData1, indexData1, objAttributes1)
+        val groundDiff = Texture2D("assets/textures/ground_diff.png", true)
+        val groundEmit = Texture2D("assets/textures/ground_emit.png", true)
+        val groundSpec = Texture2D("assets/textures/ground_spec.png", true)
+
+        groundDiff.setTexParams(GL_REPEAT, GL_REPEAT, GL_LINEAR_MIPMAP_LINEAR, GL_LINEAR)
+        groundEmit.setTexParams(GL_REPEAT, GL_REPEAT, GL_LINEAR_MIPMAP_LINEAR, GL_LINEAR)
+        groundSpec.setTexParams(GL_REPEAT, GL_REPEAT, GL_LINEAR_MIPMAP_LINEAR, GL_LINEAR)
+
+        val groundMaterial = Material(groundDiff, groundEmit, groundSpec, 60.0f, Vector2f(64.0f, 64.0f))
+
+        ground = Mesh(vertexData1, indexData1, objAttributes1, groundMaterial)
+        //ground = Mesh(vertexData1, indexData1, objAttributes1)
 
 
         groundList.add(ground)
-        sphereList.add(sphere)
+        //sphereList.add(sphere)
 
-        sphereRenderable = Renderable(sphereList)
-        sphereRenderable.scale(Vector3f(0.5f))
+        //sphereRenderable = Renderable(sphereList)
+        //sphereRenderable.scale(Vector3f(0.5f))
 
         groundRenderable = Renderable(groundList)
         //groundRenderable.rotate(90f, 0f, 0f)
         //groundRenderable.scale(Vector3f(0.7f))
 
-        camera.parent = sphereRenderable
+        //camera.parent = groundRenderable
 
         camera.rotate(Math.toRadians(-20f), 0f, 0f)
         camera.translate(Vector3f(0.0f, 0.0f, 4.0f))
+
+
 
         enableDepthTest(GL_LESS)
         enableFaceCulling(GL_CCW, GL_BACK)
@@ -113,11 +130,23 @@ class Scene(private val window: GameWindow) {
 
         camera.bind(staticShader)
         groundRenderable.render(staticShader)
-        sphereRenderable.render(staticShader)
+        //sphereRenderable.render(staticShader)
+        update(dt*10f, t)
 
     }
 
-    fun update(dt: Float, t: Float) {}
+    fun update(dt: Float, t: Float) {
+//        if (window.getKeyState(GLFW_KEY_W)) {
+//            sphereRenderable.translate(Vector3f(0f, 0f, -t*dt))
+//        } else if (window.getKeyState(GLFW_KEY_S)) {
+//            sphereRenderable.translate(Vector3f(0f, 0f , t*dt))
+//        } else if (window.getKeyState(GLFW_KEY_A)) {
+//            sphereRenderable.rotate(0f, Math.toRadians(t)*dt, 0f)
+//        } else if (window.getKeyState(GLFW_KEY_D)) {
+//            sphereRenderable.rotate(0f, Math.toRadians(-t)*dt, 0f)
+//        }
+
+    }
 
     fun onKey(key: Int, scancode: Int, action: Int, mode: Int) {}
 

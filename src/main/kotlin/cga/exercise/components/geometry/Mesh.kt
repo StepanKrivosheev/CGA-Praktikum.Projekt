@@ -1,6 +1,8 @@
 package cga.exercise.components.geometry
 
+import cga.exercise.components.shader.ShaderProgram
 import org.lwjgl.opengl.GL30.*
+import java.util.OptionalInt
 
 /**
  * Creates a Mesh object from vertexdata, intexdata and a given set of vertex attributes
@@ -12,7 +14,7 @@ import org.lwjgl.opengl.GL30.*
  *
  * Created 29.03.2023.
  */
-class Mesh(vertexdata: FloatArray, indexdata: IntArray, attributes: Array<VertexAttribute>) {
+class Mesh(vertexdata: FloatArray, indexdata: IntArray, attributes: Array<VertexAttribute>, private val material : Material ?= null) {
     //private data
     private var vaoId = 0
     private var vboId = 0
@@ -20,7 +22,7 @@ class Mesh(vertexdata: FloatArray, indexdata: IntArray, attributes: Array<Vertex
     private var indexcount = indexdata.size
 
     init {
-        // todo Aufgabe 1.2.2 (shovel geometry data to GPU and tell OpenGL how to interpret it)
+
         vaoId = glGenVertexArrays()
         glBindVertexArray(vaoId)
 
@@ -29,8 +31,8 @@ class Mesh(vertexdata: FloatArray, indexdata: IntArray, attributes: Array<Vertex
         glBufferData(GL_ARRAY_BUFFER, vertexdata, GL_STATIC_DRAW)
 
         for (i in attributes.indices) {
-            glEnableVertexAttribArray(i)
             glVertexAttribPointer(i, attributes[i].n, attributes[i].type, false, attributes[i].stride, attributes[i].offset)
+            glEnableVertexAttribArray(i)
         }
 
         iboId = glGenBuffers()
@@ -45,6 +47,11 @@ class Mesh(vertexdata: FloatArray, indexdata: IntArray, attributes: Array<Vertex
         glBindVertexArray(vaoId)
         glDrawElements(GL_TRIANGLES, indexcount, GL_UNSIGNED_INT, 0)
         glBindVertexArray(0)
+    }
+
+    fun render(shaderProgram: ShaderProgram) {
+        material?.bind(shaderProgram)
+        render()
     }
 
     /**
