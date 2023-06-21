@@ -65,6 +65,13 @@ class ShaderProgram(vertexShaderPath: String, fragmentShaderPath: String) {
         }
     }
 
+    fun setUniform(name: String, value: Vector3f) {
+        val location = GL20.glGetUniformLocation(programID, name)
+        if (location != -1) {
+            GL20.glUniform3f(location, value.x, value.y, value.z)
+        }
+    }
+
     // different setUniform() functions are added later during the course
 
     /**

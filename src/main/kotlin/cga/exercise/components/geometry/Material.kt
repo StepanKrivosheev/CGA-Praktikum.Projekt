@@ -15,8 +15,12 @@ class Material(var diff: Texture2D,
     fun bind(shaderProgram: ShaderProgram) {
 
         emit.bind(0)
+        diff.bind(1)
+        specular.bind(2)
         shaderProgram.setUniform("texEmit", 0)
-
+        shaderProgram.setUniform("texDiff", 1)
+        shaderProgram.setUniform("texSpec", 2)
+        glUniform1f(glGetUniformLocation(shaderProgram.programID, "shininess"), shininess)
         glUniform2f(glGetUniformLocation(shaderProgram.programID, "tcMultiplier"), tcMultiplier.x, tcMultiplier.y)
     }
 }
