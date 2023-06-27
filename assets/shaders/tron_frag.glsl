@@ -5,7 +5,7 @@ uniform sampler2D texEmit;
 uniform sampler2D texDiff;
 uniform sampler2D texSpec;
 
-uniform vec3 lightColorPoint;
+uniform vec3 lightColorPoint[8];
 uniform vec3 lightColorSpot;
 uniform float shininess;
 
@@ -31,15 +31,15 @@ in struct VertexData
     vec3 ViewDir;
     vec2 tc;
     vec3 lightDirSpot;
-    vec3 lightDirPoint;
+    vec3 lightDirPoint[8];
 } vertexData;
 
 //fragment shader output
 out vec4 color;
 
-vec3 brdf (vec4 matDiff, vec4 matSpec, vec3 N, vec3 L, vec3 V, float K) {
+vec3 brdf (vec4 matDiff, vec4 matSpec, vec3 N, vec3 L, vec3 V, float K, vec3 hD) {
     vec3 R = reflect(-L,N);
-    vec3 C = max(0.0, dot(N,L)) * matDiff.xyz;
+    vec3 C = max(0.0, dot(N,hD)) * matDiff.xyz;
     vec3 D = pow(max(0.0, dot(R,V)), K) * matSpec.xyz;
     return C+D;
 }
@@ -70,18 +70,25 @@ void main(){
     // normalize everything necessary //
     vec3 N = normalize(vertexData.Normal);
     vec3 LSpot = normalize(vertexData.lightDirSpot);
-    vec3 LPoint = normalize(vertexData.lightDirPoint);
     vec3 V = normalize(vertexData.ViewDir);
-    vec3 R = normalize(reflect(-LPoint,N));
+
+    vec3 halfwayDirSpot = normalize(vertexData.lightDirSpot+vertexData.ViewDir);
 
     //attenuation
     float distanceSpot = length(vertexData.lightDirSpot);
-    float distancePoint = length(vertexData.lightDirPoint);
+
     float attenuationSpot = 1.0 / (constant + linear * distanceSpot + quadratic * (distanceSpot * distanceSpot));
-    float attenuationPoint = 1.0 / (constant + linear * distancePoint + quadratic * (distancePoint * distancePoint));
+
 
     //pointLight
-    color.xyz += brdf(matDiff, matSpec, N, LPoint, V, shininess) * lightColorPoint * attenuationPoint;
+    for (int i = 0; i < 8; i++ ){
+        float distancePoint = length(vertexData.lightDirPoint[i]);
+        float attenuationPoint = 1.0 / (constant + linear * distancePoint + quadratic * (distancePoint * distancePoint));
+        vec3 LPoint = normalize(vertexData.lightDirPoint[i]);
+        vec3 halfwayDirPoint = normalize(vertexData.lightDirPoint[i]+vertexData.ViewDir);
+        color.xyz += brdf(matDiff, matSpec, N, LPoint, V, shininess, halfwayDirPoint) * lightColorPoint[i] * attenuationPoint;
+    }
+
     emit(matEmit);
 
     //spotLight
@@ -89,7 +96,7 @@ void main(){
     float epsilon = innerAngle - outerAngle;
     float intensity = clamp((theta - outerAngle) / epsilon, 0.0, 1.0);
 
-    color.xyz += brdf(matDiff, matSpec, N, LSpot, V, shininess) * lightColorSpot * intensity * attenuationSpot;
+    color.xyz += brdf(matDiff, matSpec, N, LSpot, V, shininess, halfwayDirSpot) * lightColorSpot * intensity * attenuationSpot;
 
 
     //gamma

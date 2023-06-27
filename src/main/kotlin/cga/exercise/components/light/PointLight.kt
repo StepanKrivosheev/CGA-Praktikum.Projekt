@@ -8,17 +8,18 @@ import org.joml.Vector3f
 import org.lwjgl.opengl.GL20
 import org.lwjgl.opengl.GL30.*
 
-open class PointLight (lightPos : Vector3f, val lightColor : Vector3f) : Transformable(), IPointLight {
+open class PointLight (val lightPos : Vector3f, val lightColor : Vector3f) : Transformable(), IPointLight {
 
     init {
         preTranslate(lightPos)
     }
 
     override fun bind(shaderProgram: ShaderProgram) {
-        glUniform3f(glGetUniformLocation(shaderProgram.programID, "positionPoint"), getWorldPosition().x, getWorldPosition().y, getWorldPosition().z)
-        glUniform3f(glGetUniformLocation(shaderProgram.programID, "lightColorPoint"), lightColor.x, lightColor.y, lightColor.z)
-        glUniform1f(glGetUniformLocation(shaderProgram.programID, "constant"), 1.0f)
-        glUniform1f(glGetUniformLocation(shaderProgram.programID, "linear"), 0.09f)
-        glUniform1f(glGetUniformLocation(shaderProgram.programID, "quadratic"), 0.032f)
+        shaderProgram.setUniform("positionPoint",getWorldPosition())
+        shaderProgram.setUniform("lightColorPoint",lightColor)
+        shaderProgram.setUniform("constant", 1.0f)
+        shaderProgram.setUniform("linear", 0.09f)
+        shaderProgram.setUniform("quadratic", 0.032f)
+
     }
 }

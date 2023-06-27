@@ -11,6 +11,7 @@ import cga.exercise.components.geometry.VertexAttribute
 import cga.exercise.components.geometry.Mesh
 import cga.exercise.components.geometry.Renderable
 import cga.exercise.components.light.PointLight
+import cga.exercise.components.light.PointLights
 import cga.exercise.components.light.SpotLight
 import cga.exercise.components.texture.Texture2D
 import cga.exercise.components.texture.Texture2D.Companion.invoke
@@ -34,7 +35,19 @@ class Scene(private val window: GameWindow) {
     private val groundList = mutableListOf<Mesh>()
     private val groundRenderable : Renderable
     private val camera = TronCamera()
+    private val listPointLight = mutableListOf<PointLight>()
+    private val pointLights: PointLights
     private val pointLight : PointLight
+    private val pointLight1 : PointLight
+    private val pointLight2 : PointLight
+    private val pointLight3 : PointLight
+    private val pointLight4 : PointLight
+    private val pointLight5 : PointLight
+    private val pointLight6 : PointLight
+    private val pointLight7 : PointLight
+
+    private var firstMouse : Boolean = true
+    private var lastX: Double = window.windowWidth / 2.0
     private val spotLight : SpotLight
     private val tronBike : Renderable? = loadModel("assets/Light Cycle/Light Cycle/HQ_Movie cycle.obj", (-90.0f* PI/180).toFloat(), (90.0f* PI/180).toFloat(), 0.0f)
 
@@ -74,7 +87,26 @@ class Scene(private val window: GameWindow) {
         camera.rotate(Math.toRadians(-35f), 0f, 0f)
         camera.translate(Vector3f(0.0f, 0.0f, 4.0f))
 
-        pointLight = PointLight(Vector3f(0f, 1f, 0f), Vector3f(0.5f, 0.5f, 0.5f))
+        pointLight = PointLight(Vector3f(0f, 1f, 0f), Vector3f(0.9f, 0.9f, 0.9f))
+        pointLight1 = PointLight(Vector3f(-24f, 1f, -24f), Vector3f(.0f, 0.9f, 0.9f))
+        pointLight2 = PointLight(Vector3f(24f, 1f, -24f), Vector3f(1.0f, 0.9f, 0.0f))
+        pointLight3 = PointLight(Vector3f(-32f, 1f, -8f), Vector3f(.0f, 0.9f, 0.9f))
+        pointLight4 = PointLight(Vector3f(8f, 1f, -4f), Vector3f(1.0f, 0.9f, 0.0f))
+        pointLight5 = PointLight(Vector3f(-4f, 1f, 4f), Vector3f(.0f, 0.9f, 0.9f))
+        pointLight6 = PointLight(Vector3f(14f, 1f, 14f), Vector3f(1.0f, 0.9f, 0.0f))
+        pointLight7 = PointLight(Vector3f(-24f, 1f, 2f), Vector3f(.0f, 0.9f, 0.9f))
+
+        listPointLight.add(pointLight)
+        listPointLight.add(pointLight1)
+        listPointLight.add(pointLight2)
+        listPointLight.add(pointLight3)
+        listPointLight.add(pointLight4)
+        listPointLight.add(pointLight5)
+        listPointLight.add(pointLight6)
+        listPointLight.add(pointLight7)
+
+        pointLights = PointLights(listPointLight)
+
         spotLight = SpotLight(20f, 30f, Vector3f(0f, 1f, 0f), Vector3f(1f, 1f, 1f))
         spotLight.rotate(Math.toRadians(-10f), 0f, 0f)
 
@@ -98,7 +130,8 @@ class Scene(private val window: GameWindow) {
         camera.bind(staticShader)
         groundRenderable.render(staticShader)
         tronBike?.render(staticShader)
-        pointLight.bind(staticShader)
+        pointLights.render(staticShader)
+
         spotLight.bind(staticShader, camera.getCalculateViewMatrix())
         update(dt, t)
     }
@@ -118,7 +151,22 @@ class Scene(private val window: GameWindow) {
 
     fun onKey(key: Int, scancode: Int, action: Int, mode: Int) {}
 
-    fun onMouseMove(xpos: Double, ypos: Double) {}
+    fun onMouseMove(xpos: Double, ypos: Double) {
+
+        if (firstMouse)
+        {
+            lastX = xpos
+            firstMouse = false
+        }
+
+        val offsetX : Float = ((lastX - xpos) * 0.002).toFloat()
+        lastX = xpos
+
+        val tronBikePos = tronBike!!.getPosition()
+
+        camera.rotateAroundPoint(0f, offsetX, 0f, tronBikePos)
+
+    }
 
     fun cleanup() {}
 

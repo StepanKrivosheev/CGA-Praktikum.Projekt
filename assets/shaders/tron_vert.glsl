@@ -18,14 +18,10 @@ uniform mat4 proj_matrix;
 
 uniform vec2 tcMultiplier;
 
-uniform vec3 positionPoint;
-uniform vec3 lightColorPoint;
+uniform vec3 positionPoint[8];
 
-uniform vec3 directionSpot;
 uniform vec3 positionSpot;
-uniform vec3 lightColorSpot;
-uniform float innerAngle;
-uniform float outerAngle;
+
 
 // Hint: Packing your data passed to the fragment shader into a struct like this helps to keep the code readable!
 out struct VertexData
@@ -35,7 +31,7 @@ out struct VertexData
     vec3 ViewDir;
     vec2 tc;
     vec3 lightDirSpot;
-    vec3 lightDirPoint;
+    vec3 lightDirPoint[8];
 } vertexData;
 
 
@@ -60,9 +56,12 @@ void main(){
     vertexData.Normal = (normalMat * objectSpaceNorm).xyz;
 
     // compute light direction in camera space //
-    vec4 lp = view_matrix * vec4(positionPoint, 1.0);
     vec4 P = view_matrix * worldSpacePos;
-    vertexData.lightDirPoint = (lp - P).xyz;
+    for(int i = 0; i < 8; i++ ){
+        vec4 lp = view_matrix * vec4(positionPoint[i],1.0);
+        vertexData.lightDirPoint[i] = (lp - P).xyz;
+    }
+
 
     // compute light direction in camera space for Spotlight //
     vertexData.lightDirSpot = positionSpot - P.xyz;
