@@ -10,12 +10,18 @@ import org.lwjgl.opengl.GL30.*
 import cga.exercise.components.geometry.VertexAttribute
 import cga.exercise.components.geometry.Mesh
 import cga.exercise.components.geometry.Renderable
+import cga.exercise.components.light.PointLight
+import cga.exercise.components.light.PointLights
+import cga.exercise.components.light.SpotLight
 import cga.exercise.components.texture.Texture2D
 import cga.exercise.components.texture.Texture2D.Companion.invoke
+import cga.framework.ModelLoader.loadModel
 import org.joml.Math
+import org.joml.Matrix4f
 import org.joml.Vector2f
 import org.joml.Vector3f
 import org.lwjgl.glfw.GLFW.*
+import kotlin.math.PI
 
 /**
  * Created 29.03.2023.
@@ -23,68 +29,41 @@ import org.lwjgl.glfw.GLFW.*
 class Scene(private val window: GameWindow) {
     private val staticShader: ShaderProgram = ShaderProgram("assets/shaders/tron_vert.glsl", "assets/shaders/tron_frag.glsl")
 
-    //private val simpleMesh: Mesh
-    //private val sphere: Mesh
+
     private val ground: Mesh
-    //private val groundMatrix: Matrix4f = Matrix4f()
-    //private val sphereMatrix: Matrix4f = Matrix4f()
-    private val objRes1 = OBJLoader.loadOBJ("assets/models/ground.obj")
-    private val objRes = OBJLoader.loadOBJ("assets/models/sphere.obj")
-    private val sphereList = mutableListOf<Mesh>()
+    private val groundObj = OBJLoader.loadOBJ("assets/models/ground.obj")
     private val groundList = mutableListOf<Mesh>()
     private val groundRenderable : Renderable
-    //private val sphereRenderable : Renderable
     private val camera = TronCamera()
+    private val listPointLight = mutableListOf<PointLight>()
+    private val pointLights: PointLights
+    private val pointLight : PointLight
+    private val pointLight1 : PointLight
+    private val pointLight2 : PointLight
+    private val pointLight3 : PointLight
+    private val pointLight4 : PointLight
+    private val pointLight5 : PointLight
+    private val pointLight6 : PointLight
+    private val pointLight7 : PointLight
+
+    private var firstMouse : Boolean = true
+    private var lastX: Double = window.windowWidth / 2.0
+    private val spotLight : SpotLight
+    private val tronBike : Renderable? = loadModel("assets/Light Cycle/Light Cycle/HQ_Movie cycle.obj", (-90.0f* PI/180).toFloat(), (90.0f* PI/180).toFloat(), 0.0f)
 
 
     //scene setup
     init {
-        /*
-        val vertices = floatArrayOf(
-            -0.5f, -0.5f, 0.0f, 0.0f, 0.0f, 1.0f,
-            0.5f, -0.5f, 0.0f, 0.0f, 0.0f, 1.0f,
-            0.5f, 0.5f, 0.0f, 0.0f, 1.0f, 0.0f,
-            0.0f, 1.0f, 0.0f, 1.0f, 0.0f, 0.0f,
-            -0.5f, 0.5f, 0.0f, 0.0f, 1.0f, 0.0f
-        )
 
-        val indices = intArrayOf(
-            0, 1, 2,
-            0, 2, 4,
-            4, 2, 3
-        )
+        val groundMesh: OBJLoader.OBJMesh = groundObj.objects[0].meshes[0]
 
-        val pos = VertexAttribute(3, GL_FLOAT, 24, 0)
-        val color = VertexAttribute(3, GL_FLOAT, 24,12)
-        val attributes = arrayOf<VertexAttribute>(pos, color)
+        val vertexData1 = groundMesh.vertexData
+        val indexData1 = groundMesh.indexData
 
-        simpleMesh = Mesh(vertices, indices, attributes)
-
-
-
-        val objMesh: OBJLoader.OBJMesh = objRes.objects[0].meshes[0]
-
-        val vertexData = objMesh.vertexData
-        val indexData = objMesh.indexData
-
-        val objPos = VertexAttribute(3, GL_FLOAT, 32, 0)
-        val objColor = VertexAttribute(2, GL_FLOAT, 32,12)
-        val objNorm = VertexAttribute(3, GL_FLOAT, 32,20)
-        val objAttributes = arrayOf<VertexAttribute>(objPos, objColor, objNorm)
-
-        sphere = Mesh(vertexData, indexData, objAttributes)
-        */
-
-
-        val objMesh1: OBJLoader.OBJMesh = objRes1.objects[0].meshes[0]
-
-        val vertexData1 = objMesh1.vertexData
-        val indexData1 = objMesh1.indexData
-
-        val objPos1 = VertexAttribute(3, GL_FLOAT, 32, 0)
-        val objTexture1 = VertexAttribute(2, GL_FLOAT, 32,12)
-        val objNorm1 = VertexAttribute(3, GL_FLOAT, 32,20)
-        val objAttributes1 = arrayOf<VertexAttribute>(objPos1, objTexture1, objNorm1)
+        val groundPos = VertexAttribute(3, GL_FLOAT, 32, 0)
+        val groundTex = VertexAttribute(2, GL_FLOAT, 32,12)
+        val groundNorm = VertexAttribute(3, GL_FLOAT, 32,20)
+        val objAttributes1 = arrayOf<VertexAttribute>(groundPos, groundTex, groundNorm)
 
         val groundDiff = Texture2D("assets/textures/ground_diff.png", true)
         val groundEmit = Texture2D("assets/textures/ground_emit.png", true)
@@ -97,24 +76,42 @@ class Scene(private val window: GameWindow) {
         val groundMaterial = Material(groundDiff, groundEmit, groundSpec, 60.0f, Vector2f(64.0f, 64.0f))
 
         ground = Mesh(vertexData1, indexData1, objAttributes1, groundMaterial)
-        //ground = Mesh(vertexData1, indexData1, objAttributes1)
-
 
         groundList.add(ground)
-        //sphereList.add(sphere)
-
-        //sphereRenderable = Renderable(sphereList)
-        //sphereRenderable.scale(Vector3f(0.5f))
-
         groundRenderable = Renderable(groundList)
-        //groundRenderable.rotate(90f, 0f, 0f)
-        //groundRenderable.scale(Vector3f(0.7f))
 
-        //camera.parent = groundRenderable
+        tronBike?.scale(Vector3f(0.8f))
 
-        camera.rotate(Math.toRadians(-20f), 0f, 0f)
+        camera.parent = tronBike
+
+        camera.rotate(Math.toRadians(-35f), 0f, 0f)
         camera.translate(Vector3f(0.0f, 0.0f, 4.0f))
 
+        pointLight = PointLight(Vector3f(0f, 1f, 0f), Vector3f(0.9f, 0.9f, 0.9f))
+        pointLight1 = PointLight(Vector3f(-24f, 1f, -24f), Vector3f(.0f, 0.9f, 0.9f))
+        pointLight2 = PointLight(Vector3f(24f, 1f, -24f), Vector3f(1.0f, 0.9f, 0.0f))
+        pointLight3 = PointLight(Vector3f(-32f, 1f, -8f), Vector3f(.0f, 0.9f, 0.9f))
+        pointLight4 = PointLight(Vector3f(8f, 1f, -4f), Vector3f(1.0f, 0.9f, 0.0f))
+        pointLight5 = PointLight(Vector3f(-4f, 1f, 4f), Vector3f(.0f, 0.9f, 0.9f))
+        pointLight6 = PointLight(Vector3f(14f, 1f, 14f), Vector3f(1.0f, 0.9f, 0.0f))
+        pointLight7 = PointLight(Vector3f(-24f, 1f, 2f), Vector3f(.0f, 0.9f, 0.9f))
+
+        listPointLight.add(pointLight)
+        listPointLight.add(pointLight1)
+        listPointLight.add(pointLight2)
+        listPointLight.add(pointLight3)
+        listPointLight.add(pointLight4)
+        listPointLight.add(pointLight5)
+        listPointLight.add(pointLight6)
+        listPointLight.add(pointLight7)
+
+        pointLights = PointLights(listPointLight)
+
+        spotLight = SpotLight(20f, 30f, Vector3f(0f, 1f, 0f), Vector3f(1f, 1f, 1f))
+        spotLight.rotate(Math.toRadians(-10f), 0f, 0f)
+
+        pointLight.parent = tronBike
+        spotLight.parent = tronBike
 
 
         enableDepthTest(GL_LESS)
@@ -128,29 +125,48 @@ class Scene(private val window: GameWindow) {
         glClear(GL_COLOR_BUFFER_BIT or GL_DEPTH_BUFFER_BIT)
         staticShader.use()
 
+        staticShader.setUniform("staticColor", Vector3f(0f, 1f, 0f))
+
         camera.bind(staticShader)
         groundRenderable.render(staticShader)
-        //sphereRenderable.render(staticShader)
-        update(dt*10f, t)
+        tronBike?.render(staticShader)
+        pointLights.render(staticShader)
 
+        spotLight.bind(staticShader, camera.getCalculateViewMatrix())
+        update(dt, t)
     }
 
     fun update(dt: Float, t: Float) {
-//        if (window.getKeyState(GLFW_KEY_W)) {
-//            sphereRenderable.translate(Vector3f(0f, 0f, -t*dt))
-//        } else if (window.getKeyState(GLFW_KEY_S)) {
-//            sphereRenderable.translate(Vector3f(0f, 0f , t*dt))
-//        } else if (window.getKeyState(GLFW_KEY_A)) {
-//            sphereRenderable.rotate(0f, Math.toRadians(t)*dt, 0f)
-//        } else if (window.getKeyState(GLFW_KEY_D)) {
-//            sphereRenderable.rotate(0f, Math.toRadians(-t)*dt, 0f)
-//        }
-
+        if (window.getKeyState(GLFW_KEY_W)) {
+            tronBike?.translate(Vector3f(0f, 0f, -t*dt*2f))
+            if (window.getKeyState(GLFW_KEY_A)) {
+                tronBike?.rotate(0f, Math.toRadians(t*dt*20f), 0f)
+            } else if (window.getKeyState(GLFW_KEY_D)) {
+                tronBike?.rotate(0f, Math.toRadians(-t*dt*20f), 0f)
+            }
+        } else if (window.getKeyState(GLFW_KEY_S)) {
+            tronBike?.translate(Vector3f(0f, 0f , t*dt))
+        }
     }
 
     fun onKey(key: Int, scancode: Int, action: Int, mode: Int) {}
 
-    fun onMouseMove(xpos: Double, ypos: Double) {}
+    fun onMouseMove(xpos: Double, ypos: Double) {
+
+        if (firstMouse)
+        {
+            lastX = xpos
+            firstMouse = false
+        }
+
+        val offsetX : Float = ((lastX - xpos) * 0.002).toFloat()
+        lastX = xpos
+
+        val tronBikePos = tronBike!!.getPosition()
+
+        camera.rotateAroundPoint(0f, offsetX, 0f, tronBikePos)
+
+    }
 
     fun cleanup() {}
 

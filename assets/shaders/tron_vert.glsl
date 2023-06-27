@@ -2,8 +2,8 @@
 
 
 layout(location = 0) in vec3 position;
-layout(location = 2) in vec3 normal;
 layout(location = 1) in vec2 texCoords;
+layout(location = 2) in vec3 normal;
 
 // --- uniforms
 // object to world (the default value will be used unless you upload some other matrix using glUniformMatrix4fv)
@@ -18,12 +18,22 @@ uniform mat4 proj_matrix;
 
 uniform vec2 tcMultiplier;
 
+uniform vec3 positionPoint[8];
+
+uniform vec3 positionSpot;
+
+
 // Hint: Packing your data passed to the fragment shader into a struct like this helps to keep the code readable!
 out struct VertexData
 {
     vec3 viewSpaceNormal;
+    vec3 Normal;
+    vec3 ViewDir;
     vec2 tc;
+    vec3 lightDirSpot;
+    vec3 lightDirPoint[8];
 } vertexData;
+
 
 void main(){
     // This code should output something similar to Figure 1 in the exercise sheet.
@@ -41,4 +51,22 @@ void main(){
     vertexData.viewSpaceNormal = vec3(view_matrix * model_matrix * objectSpaceNorm);
 
     vertexData.tc = texCoords*tcMultiplier;
+    // compute normal in camera space //
+    mat4 normalMat = transpose(inverse(view_matrix * model_matrix));
+    vertexData.Normal = (normalMat * objectSpaceNorm).xyz;
+
+    // compute light direction in camera space //
+    vec4 P = view_matrix * worldSpacePos;
+    for(int i = 0; i < 8; i++ ){
+        vec4 lp = view_matrix * vec4(positionPoint[i],1.0);
+        vertexData.lightDirPoint[i] = (lp - P).xyz;
+    }
+
+
+    // compute light direction in camera space for Spotlight //
+    vertexData.lightDirSpot = positionSpot - P.xyz;
+
+    // specular term //
+    vertexData.ViewDir = -P.xyz;
+
 }
