@@ -16,12 +16,17 @@ uniform mat4 view_matrix;
 // camera to clipping (2.4.2)
 uniform mat4 proj_matrix;
 
+#define MAX_LIGHTS 5
+
 uniform vec2 tcMultiplier;
 
-uniform vec3 positionPoint[8];
+uniform vec3 positionPoint[MAX_LIGHTS];
 
+uniform vec3 directionSpot;
 uniform vec3 positionSpot;
-
+uniform vec3 lightColorSpot;
+uniform float innerAngle;
+uniform float outerAngle;
 
 // Hint: Packing your data passed to the fragment shader into a struct like this helps to keep the code readable!
 out struct VertexData
@@ -31,7 +36,7 @@ out struct VertexData
     vec3 ViewDir;
     vec2 tc;
     vec3 lightDirSpot;
-    vec3 lightDirPoint[8];
+    vec3 lightDirPoint[MAX_LIGHTS];
 } vertexData;
 
 
@@ -57,11 +62,10 @@ void main(){
 
     // compute light direction in camera space //
     vec4 P = view_matrix * worldSpacePos;
-    for(int i = 0; i < 8; i++ ){
-        vec4 lp = view_matrix * vec4(positionPoint[i],1.0);
+    for(int i = 0; i < MAX_LIGHTS; i++ ){
+        vec4 lp = view_matrix * vec4(positionPoint[i], 1.0);
         vertexData.lightDirPoint[i] = (lp - P).xyz;
     }
-
 
     // compute light direction in camera space for Spotlight //
     vertexData.lightDirSpot = positionSpot - P.xyz;
