@@ -45,6 +45,7 @@ class Scene(private val window: GameWindow) {
     private val listPointLight = mutableListOf<PointLight>()
     private val spotLight : SpotLight
     private val tronBike : Renderable? = loadModel("assets/Light Cycle/Light Cycle/HQ_Movie cycle.obj", (-90.0f* PI/180).toFloat(), (90.0f* PI/180).toFloat(), 0.0f)
+    private val fourBlock : Renderable? = loadModel("assets/blocks/4erBlock.obj", 0f, 0f, 0f)
     private var firstMouse : Boolean = true
     private var lastX: Double = window.windowWidth / 2.0
     private var lastY: Double = window.windowHeight / 2.0
@@ -52,6 +53,8 @@ class Scene(private val window: GameWindow) {
 
     //scene setup
     init {
+
+        // ground
 
         val groundMesh: OBJLoader.OBJMesh = groundObj.objects[0].meshes[0]
 
@@ -78,12 +81,21 @@ class Scene(private val window: GameWindow) {
         groundList.add(ground)
         groundRenderable = Renderable(groundList)
 
+
+        // bike
+
         tronBike?.scale(Vector3f(0.8f))
+
+
+        // camera
 
         camera.parent = tronBike
 
         camera.rotate(Math.toRadians(-35f), 0f, 0f)
         camera.translate(Vector3f(0.0f, 0.0f, 4.0f))
+
+
+        // lights
 
         pointLight = PointLight(Vector3f(0f, 0.5f, 0f), Vector3f(0.1f, 0.1f, 0.1f))
         pointLight1 = PointLight(Vector3f(-20f, 1f, -20f), Vector3f(0.5f, 1f, 0.5f))
@@ -106,6 +118,8 @@ class Scene(private val window: GameWindow) {
         spotLight.parent = tronBike
 
 
+        // misc
+
         enableDepthTest(GL_LESS)
         enableFaceCulling(GL_CCW, GL_BACK)
 
@@ -125,12 +139,16 @@ class Scene(private val window: GameWindow) {
         update(dt, t)
         onMouseMove(window.mousePos.xpos, window.mousePos.ypos)
         tronBike?.render(staticShader)
+        fourBlock?.render(staticShader)
         pointLights.render(staticShader)
         spotLight.bind(staticShader, camera.getCalculateViewMatrix())
 
     }
 
     fun update(dt: Float, t: Float) {
+
+        // movement bike
+
         if (window.getKeyState(GLFW_KEY_W)) {
             tronBike?.translate(Vector3f(0f, 0f, -dt*5f))
             if (window.getKeyState(GLFW_KEY_A)) {
@@ -141,6 +159,8 @@ class Scene(private val window: GameWindow) {
         } else if (window.getKeyState(GLFW_KEY_S)) {
             tronBike?.translate(Vector3f(0f, 0f , dt*5f))
         }
+
+        // light changing
 
         val lightColor = Vector3f(sin(t*0.1f), sin(t*0.2f), sin(t*0.3f))
 
