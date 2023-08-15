@@ -22,6 +22,7 @@ import org.joml.Vector2f
 import org.joml.Vector3f
 import org.lwjgl.glfw.GLFW.*
 import kotlin.math.PI
+import kotlin.math.sin
 
 /**
  * Created 29.03.2023.
@@ -85,7 +86,7 @@ class Scene(private val window: GameWindow) {
         camera.parent = tronBike
 
         camera.rotate(Math.toRadians(-35f), 0f, 0f)
-        camera.translate(Vector3f(0.0f, 0.0f, 4.0f))
+        camera.translate(Vector3f(0f, 0f, 4f))
 
         pointLight = PointLight(Vector3f(0f, 1f, 0f), Vector3f(0.9f, 0.9f, 0.9f))
         pointLight1 = PointLight(Vector3f(-24f, 1f, -24f), Vector3f(.0f, 0.9f, 0.9f))
@@ -129,24 +130,30 @@ class Scene(private val window: GameWindow) {
 
         camera.bind(staticShader)
         groundRenderable.render(staticShader)
+
+        update(dt, t)
+        onMouseMove(window.mousePos.xpos, window.mousePos.ypos)
         tronBike?.render(staticShader)
         pointLights.render(staticShader)
-
         spotLight.bind(staticShader, camera.getCalculateViewMatrix())
-        update(dt, t)
     }
 
     fun update(dt: Float, t: Float) {
         if (window.getKeyState(GLFW_KEY_W)) {
-            tronBike?.translate(Vector3f(0f, 0f, -t*dt*2f))
+            tronBike?.translate(Vector3f(0f, 0f, -dt*5f))
             if (window.getKeyState(GLFW_KEY_A)) {
-                tronBike?.rotate(0f, Math.toRadians(t*dt*20f), 0f)
+                tronBike?.rotate(0f, Math.toRadians(0.1f), 0f)
             } else if (window.getKeyState(GLFW_KEY_D)) {
-                tronBike?.rotate(0f, Math.toRadians(-t*dt*20f), 0f)
+                tronBike?.rotate(0f, Math.toRadians(-0.1f), 0f)
             }
         } else if (window.getKeyState(GLFW_KEY_S)) {
-            tronBike?.translate(Vector3f(0f, 0f , t*dt))
+            tronBike?.translate(Vector3f(0f, 0f , dt*5f))
         }
+
+        val lightColor = Vector3f(sin(t*0.1f), sin(t*0.2f), sin(t*0.3f))
+
+        pointLight.lightColor = lightColor
+        staticShader.setUniform("staticColor", lightColor)
     }
 
     fun onKey(key: Int, scancode: Int, action: Int, mode: Int) {}
@@ -162,10 +169,7 @@ class Scene(private val window: GameWindow) {
         val offsetX : Float = ((lastX - xpos) * 0.002).toFloat()
         lastX = xpos
 
-        val tronBikePos = tronBike!!.getPosition()
-
-        camera.rotateAroundPoint(0f, offsetX, 0f, tronBikePos)
-
+        camera.rotateAroundPoint(0f, offsetX, 0f, Vector3f(0f, 0f, 0f))
     }
 
     fun cleanup() {}

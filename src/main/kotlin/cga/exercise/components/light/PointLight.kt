@@ -8,7 +8,7 @@ import org.joml.Vector3f
 import org.lwjgl.opengl.GL20
 import org.lwjgl.opengl.GL30.*
 
-open class PointLight (val lightPos : Vector3f, val lightColor : Vector3f) : Transformable(), IPointLight {
+open class PointLight (val lightPos : Vector3f, var lightColor : Vector3f) : Transformable(), IPointLight {
 
     init {
         preTranslate(lightPos)
