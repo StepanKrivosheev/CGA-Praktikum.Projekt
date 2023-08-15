@@ -27,9 +27,6 @@ class SpotLight (private val innerAngle : Float,
         shaderProgram.setUniform("directionSpot", getWorldZAxis().mul(Matrix3f(viewMatrix)))
         shaderProgram.setUniform("positionSpot", Vector3f(position.x, position.y, position.z))
         shaderProgram.setUniform("lightColorSpot", lightColor)
-        glUniform1f(glGetUniformLocation(shaderProgram.programID, "constant"), 1.0f)
-        glUniform1f(glGetUniformLocation(shaderProgram.programID, "linear"), 0.045f)
-        glUniform1f(glGetUniformLocation(shaderProgram.programID, "quadratic"), 0.0075f)
     }
 
 }

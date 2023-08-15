@@ -1,26 +1,26 @@
 package cga.exercise.game
 
 import cga.exercise.components.camera.TronCamera
+import cga.exercise.components.light.PointLights
 import cga.exercise.components.geometry.Material
-import cga.exercise.components.shader.ShaderProgram
-import cga.framework.GLError
-import cga.framework.GameWindow
-import cga.framework.OBJLoader
-import org.lwjgl.opengl.GL30.*
-import cga.exercise.components.geometry.VertexAttribute
 import cga.exercise.components.geometry.Mesh
 import cga.exercise.components.geometry.Renderable
+import cga.exercise.components.geometry.VertexAttribute
 import cga.exercise.components.light.PointLight
-import cga.exercise.components.light.PointLights
 import cga.exercise.components.light.SpotLight
+import cga.exercise.components.shader.ShaderProgram
 import cga.exercise.components.texture.Texture2D
 import cga.exercise.components.texture.Texture2D.Companion.invoke
+import cga.framework.GLError
+import cga.framework.GameWindow
 import cga.framework.ModelLoader.loadModel
+import cga.framework.OBJLoader
 import org.joml.Math
-import org.joml.Matrix4f
 import org.joml.Vector2f
 import org.joml.Vector3f
 import org.lwjgl.glfw.GLFW.*
+import org.lwjgl.opengl.GL30.*
+import java.awt.Point
 import kotlin.math.PI
 import kotlin.math.sin
 
@@ -36,21 +36,18 @@ class Scene(private val window: GameWindow) {
     private val groundList = mutableListOf<Mesh>()
     private val groundRenderable : Renderable
     private val camera = TronCamera()
-    private val listPointLight = mutableListOf<PointLight>()
-    private val pointLights: PointLights
     private val pointLight : PointLight
     private val pointLight1 : PointLight
     private val pointLight2 : PointLight
     private val pointLight3 : PointLight
     private val pointLight4 : PointLight
-    private val pointLight5 : PointLight
-    private val pointLight6 : PointLight
-    private val pointLight7 : PointLight
-
-    private var firstMouse : Boolean = true
-    private var lastX: Double = window.windowWidth / 2.0
+    private val pointLights : PointLights
+    private val listPointLight = mutableListOf<PointLight>()
     private val spotLight : SpotLight
     private val tronBike : Renderable? = loadModel("assets/Light Cycle/Light Cycle/HQ_Movie cycle.obj", (-90.0f* PI/180).toFloat(), (90.0f* PI/180).toFloat(), 0.0f)
+    private var firstMouse : Boolean = true
+    private var lastX: Double = window.windowWidth / 2.0
+    private var lastY: Double = window.windowHeight / 2.0
 
 
     //scene setup
@@ -86,25 +83,19 @@ class Scene(private val window: GameWindow) {
         camera.parent = tronBike
 
         camera.rotate(Math.toRadians(-35f), 0f, 0f)
-        camera.translate(Vector3f(0f, 0f, 4f))
+        camera.translate(Vector3f(0.0f, 0.0f, 4.0f))
 
-        pointLight = PointLight(Vector3f(0f, 1f, 0f), Vector3f(0.9f, 0.9f, 0.9f))
-        pointLight1 = PointLight(Vector3f(-24f, 1f, -24f), Vector3f(.0f, 0.9f, 0.9f))
-        pointLight2 = PointLight(Vector3f(24f, 1f, -24f), Vector3f(1.0f, 0.9f, 0.0f))
-        pointLight3 = PointLight(Vector3f(-32f, 1f, -8f), Vector3f(.0f, 0.9f, 0.9f))
-        pointLight4 = PointLight(Vector3f(8f, 1f, -4f), Vector3f(1.0f, 0.9f, 0.0f))
-        pointLight5 = PointLight(Vector3f(-4f, 1f, 4f), Vector3f(.0f, 0.9f, 0.9f))
-        pointLight6 = PointLight(Vector3f(14f, 1f, 14f), Vector3f(1.0f, 0.9f, 0.0f))
-        pointLight7 = PointLight(Vector3f(-24f, 1f, 2f), Vector3f(.0f, 0.9f, 0.9f))
+        pointLight = PointLight(Vector3f(0f, 0.5f, 0f), Vector3f(0.1f, 0.1f, 0.1f))
+        pointLight1 = PointLight(Vector3f(-20f, 1f, -20f), Vector3f(0.5f, 1f, 0.5f))
+        pointLight2 = PointLight(Vector3f(20f, 1f, -20f), Vector3f(1f, 0.5f, 0.5f))
+        pointLight3 = PointLight(Vector3f(20f, 1f, 20f), Vector3f(0.5f, 0.5f, 1f))
+        pointLight4 = PointLight(Vector3f(-20f, 1f, 20f), Vector3f(1f, 1f, 0.5f))
 
         listPointLight.add(pointLight)
         listPointLight.add(pointLight1)
         listPointLight.add(pointLight2)
         listPointLight.add(pointLight3)
         listPointLight.add(pointLight4)
-        listPointLight.add(pointLight5)
-        listPointLight.add(pointLight6)
-        listPointLight.add(pointLight7)
 
         pointLights = PointLights(listPointLight)
 
@@ -136,6 +127,7 @@ class Scene(private val window: GameWindow) {
         tronBike?.render(staticShader)
         pointLights.render(staticShader)
         spotLight.bind(staticShader, camera.getCalculateViewMatrix())
+
     }
 
     fun update(dt: Float, t: Float) {
@@ -154,6 +146,7 @@ class Scene(private val window: GameWindow) {
 
         pointLight.lightColor = lightColor
         staticShader.setUniform("staticColor", lightColor)
+
     }
 
     fun onKey(key: Int, scancode: Int, action: Int, mode: Int) {}
@@ -170,6 +163,7 @@ class Scene(private val window: GameWindow) {
         lastX = xpos
 
         camera.rotateAroundPoint(0f, offsetX, 0f, Vector3f(0f, 0f, 0f))
+
     }
 
     fun cleanup() {}
