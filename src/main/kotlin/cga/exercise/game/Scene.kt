@@ -46,6 +46,7 @@ class Scene(private val window: GameWindow) {
     private val spotLight : SpotLight
     private val tronBike : Renderable? = loadModel("assets/Light Cycle/Light Cycle/HQ_Movie cycle.obj", (-90.0f* PI/180).toFloat(), (90.0f* PI/180).toFloat(), 0.0f)
     private val fourBlock : Renderable? = loadModel("assets/blocks/4erBlock.obj", 0f, 0f, 0f)
+    private val lBlock : Renderable? = loadModel("assets/blocks/L-Block.obj", 0f, 0f, 0f)
     private var firstMouse : Boolean = true
     private var lastX: Double = window.windowWidth / 2.0
     private var lastY: Double = window.windowHeight / 2.0
@@ -80,6 +81,12 @@ class Scene(private val window: GameWindow) {
 
         groundList.add(ground)
         groundRenderable = Renderable(groundList)
+
+
+        // blocks
+
+        fourBlock?.translate(Vector3f(0f, 2f, 0f))
+        lBlock?.translate(Vector3f(4f, 2f, 0f))
 
 
         // bike
@@ -139,7 +146,10 @@ class Scene(private val window: GameWindow) {
         update(dt, t)
         onMouseMove(window.mousePos.xpos, window.mousePos.ypos)
         tronBike?.render(staticShader)
+
         fourBlock?.render(staticShader)
+        lBlock?.render(staticShader)
+
         pointLights.render(staticShader)
         spotLight.bind(staticShader, camera.getCalculateViewMatrix())
 
