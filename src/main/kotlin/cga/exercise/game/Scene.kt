@@ -44,12 +44,20 @@ class Scene(private val window: GameWindow) {
     private val pointLights : PointLights
     private val listPointLight = mutableListOf<PointLight>()
     private val spotLight : SpotLight
-    private val tronBike : Renderable? = loadModel("assets/Light Cycle/Light Cycle/HQ_Movie cycle.obj", (-90.0f* PI/180).toFloat(), (90.0f* PI/180).toFloat(), 0.0f)
-    private val fourBlock : Renderable? = loadModel("assets/blocks/4erBlock.obj", 0f, 0f, 0f)
-    private val lBlock : Renderable? = loadModel("assets/blocks/L-Block.obj", 0f, 0f, 0f)
+    private val wall1 : Renderable = loadModel("assets/blocks/walls.obj", 0f, 0f, (90.0f* PI/180).toFloat()) ?: throw IllegalArgumentException("Could not load the model")
+    //private val tronBike : Renderable = loadModel("assets/Light Cycle/Light Cycle/HQ_Movie cycle.obj", (-90.0f* PI/180).toFloat(), (90.0f* PI/180).toFloat(), 0.0f) ?: throw IllegalArgumentException("Could not load the model")
+    private val fourBlock : Renderable = loadModel("assets/blocks/4erBlock.obj", 0f, 0f, 0f) ?: throw IllegalArgumentException("Could not load the model")
+    private val lBlock : Renderable = loadModel("assets/blocks/L-Block.obj", 0f, 0f, 0f) ?: throw IllegalArgumentException("Could not load the model")
+    private val lBlockReverse : Renderable = loadModel("assets/blocks/L-Block.Reverse.obj", 0f, 0f, 0f) ?: throw IllegalArgumentException("Could not load the model")
+    private val longBlock : Renderable = loadModel("assets/blocks/Lang.obj", 0f, 0f, 0f) ?: throw IllegalArgumentException("Could not load the model")
+    private val tBlock : Renderable = loadModel("assets/blocks/T-Block.obj", 0f, 0f, 0f) ?: throw IllegalArgumentException("Could not load the model")
+    private val zBlock : Renderable = loadModel("assets/blocks/Z-Block.obj", 0f, 0f, 0f) ?: throw IllegalArgumentException("Could not load the model")
+    private val zBlockReverse : Renderable = loadModel("assets/blocks/Z-Block.Reverse.obj", 0f, 0f, 0f) ?: throw IllegalArgumentException("Could not load the model")
     private var firstMouse : Boolean = true
     private var lastX: Double = window.windowWidth / 2.0
     private var lastY: Double = window.windowHeight / 2.0
+
+    private val testCube : Renderable = loadModel("assets/testCube.obj", 0f, 0f, 0f) ?: throw IllegalArgumentException("Could not load the model")
 
 
     //scene setup
@@ -85,26 +93,34 @@ class Scene(private val window: GameWindow) {
 
         // blocks
 
-        fourBlock?.translate(Vector3f(0f, 2f, 0f))
-        lBlock?.translate(Vector3f(4f, 2f, 0f))
+        fourBlock.translate(Vector3f(0f, 3f, 0f))
+        lBlock.translate(Vector3f(3f, 3f, 0f))
+        lBlockReverse.translate(Vector3f(6f, 3f, 0f))
+        longBlock.translate(Vector3f(9f, 3f, 0f))
+        tBlock.translate(Vector3f(-3f, 3f, 0f))
+        zBlock.translate(Vector3f(-6f, 3f, 0f))
+        zBlockReverse.translate(Vector3f(-9f, 3f, 0f))
+
+        testCube.translate(Vector3f(0f, 2f, 0f))
 
 
         // bike
 
-        tronBike?.scale(Vector3f(0.8f))
+        wall1.scale(Vector3f(0.3f))
+        //tronBike.scale(Vector3f(0.8f))
 
 
         // camera
 
-        camera.parent = tronBike
+        //camera.parent = tronBike
 
-        camera.rotate(Math.toRadians(-35f), 0f, 0f)
-        camera.translate(Vector3f(0.0f, 0.0f, 4.0f))
+        //camera.rotate(Math.toRadians(-35f), 0f, 0f)
+        camera.translate(Vector3f(0.0f, 2.0f, 4.0f))
 
 
         // lights
 
-        pointLight = PointLight(Vector3f(0f, 0.5f, 0f), Vector3f(0.1f, 0.1f, 0.1f))
+        pointLight = PointLight(Vector3f(0f, 7f, 0f), Vector3f(1f, 1f, 1f))
         pointLight1 = PointLight(Vector3f(-20f, 1f, -20f), Vector3f(0.5f, 1f, 0.5f))
         pointLight2 = PointLight(Vector3f(20f, 1f, -20f), Vector3f(1f, 0.5f, 0.5f))
         pointLight3 = PointLight(Vector3f(20f, 1f, 20f), Vector3f(0.5f, 0.5f, 1f))
@@ -121,61 +137,67 @@ class Scene(private val window: GameWindow) {
         spotLight = SpotLight(20f, 30f, Vector3f(0f, 1f, 0f), Vector3f(1f, 1f, 1f))
         spotLight.rotate(Math.toRadians(-10f), 0f, 0f)
 
-        pointLight.parent = tronBike
-        spotLight.parent = tronBike
+        //pointLight.parent = tronBike
+        //spotLight.parent = tronBike
 
-
-        // misc
-
-        enableDepthTest(GL_LESS)
-        enableFaceCulling(GL_CCW, GL_BACK)
 
         //initial opengl state
-        glClearColor(0.0f, 0.0f, 0.0f, 1.0f); GLError.checkThrow()
+        enableDepthTest(GL_LESS)
+        //enableFaceCulling(GL_CCW, GL_BACK)
+        glClearColor(0.2f, 0.2f, 0.2f, 1.0f); GLError.checkThrow()
     }
 
     fun render(dt: Float, t: Float) {
         glClear(GL_COLOR_BUFFER_BIT or GL_DEPTH_BUFFER_BIT)
         staticShader.use()
 
-        staticShader.setUniform("staticColor", Vector3f(0f, 1f, 0f))
+        staticShader.setUniform("staticColor", Vector3f(1f, 1f, 1f))
 
         camera.bind(staticShader)
         groundRenderable.render(staticShader)
 
+        //wall1.render(staticShader)
+
         update(dt, t)
         onMouseMove(window.mousePos.xpos, window.mousePos.ypos)
-        tronBike?.render(staticShader)
+        //tronBike.render(staticShader)
 
-        fourBlock?.render(staticShader)
-        lBlock?.render(staticShader)
+        fourBlock.render(staticShader)
+        lBlock.render(staticShader)
+        lBlockReverse.render(staticShader)
+        longBlock.render(staticShader)
+        tBlock.render(staticShader)
+        zBlock.render(staticShader)
+        zBlockReverse.render(staticShader)
+
+        //testCube.render(staticShader)
 
         pointLights.render(staticShader)
-        spotLight.bind(staticShader, camera.getCalculateViewMatrix())
+        //spotLight.bind(staticShader, camera.getCalculateViewMatrix())
 
     }
 
     fun update(dt: Float, t: Float) {
 
-        // movement bike
+        // camera movement
 
         if (window.getKeyState(GLFW_KEY_W)) {
-            tronBike?.translate(Vector3f(0f, 0f, -dt*5f))
-            if (window.getKeyState(GLFW_KEY_A)) {
-                tronBike?.rotate(0f, Math.toRadians(0.1f), 0f)
-            } else if (window.getKeyState(GLFW_KEY_D)) {
-                tronBike?.rotate(0f, Math.toRadians(-0.1f), 0f)
-            }
+            camera.translate(Vector3f(0f, 0f, -dt*5f))
         } else if (window.getKeyState(GLFW_KEY_S)) {
-            tronBike?.translate(Vector3f(0f, 0f , dt*5f))
+            camera.translate(Vector3f(0f, 0f , dt*5f))
         }
 
-        // light changing
+        if (window.getKeyState(GLFW_KEY_SPACE)) {
+            camera.translate(Vector3f(0f, dt*5f, 0f))
+        } else if (window.getKeyState(GLFW_KEY_LEFT_CONTROL)) {
+            camera.translate(Vector3f(0f, -dt*5f, 0f))
+        }
 
-        val lightColor = Vector3f(sin(t*0.1f), sin(t*0.2f), sin(t*0.3f))
-
-        pointLight.lightColor = lightColor
-        staticShader.setUniform("staticColor", lightColor)
+        if (window.getKeyState(GLFW_KEY_A)) {
+            camera.translate(Vector3f(-dt*5f, 0f, 0f))
+        } else if (window.getKeyState(GLFW_KEY_D)) {
+            camera.translate(Vector3f(dt*5f, 0f, 0f))
+        }
 
     }
 
@@ -183,16 +205,22 @@ class Scene(private val window: GameWindow) {
 
     fun onMouseMove(xpos: Double, ypos: Double) {
 
+        // camera rotation
+
         if (firstMouse)
         {
             lastX = xpos
+            lastY = ypos
             firstMouse = false
         }
 
         val offsetX : Float = ((lastX - xpos) * 0.002).toFloat()
+        val offsetY : Float = ((lastY - ypos) * 0.002).toFloat()
         lastX = xpos
+        lastY = ypos
 
-        camera.rotateAroundPoint(0f, offsetX, 0f, Vector3f(0f, 0f, 0f))
+        camera.rotate(0f, offsetX, 0f)
+        camera.rotate(offsetY, 0f, 0f)
 
     }
 

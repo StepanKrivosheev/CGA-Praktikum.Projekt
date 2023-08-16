@@ -1,12 +1,14 @@
 # Blender MTL File: 'None'
 # Material Count: 1
 
-newmtl Material.017
-Ns 359.999993
+newmtl Material.013
+Ns 360.000029
 Ka 1.000000 1.000000 1.000000
-Kd 0.028675 0.011230 0.800000
+Kd 0.088425 0.800000 0.041829
 Ks 0.500000 0.500000 0.500000
 Ke 0.000000 0.000000 0.000000
 Ni 1.450000
 d 1.000000
 illum 2
+map_Kd green.tga
+map_Ke black_emit.tga

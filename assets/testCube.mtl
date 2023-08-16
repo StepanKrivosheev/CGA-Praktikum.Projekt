@@ -1,0 +1,19 @@
+# Blender 3.4.1 MTL File: 'None'
+# www.blender.org
+
+newmtl Material.001
+Kd 0.019972 0.668092 0.800000
+Ks 0.500000 0.500000 0.500000
+Ke 0.048921 1.000000 0.920570
+# Ni 1.450000
+# d 1.000000
+illum 2
+# map_Kd testCube_diff.tga
+# map_Ke testCube_emit.tga
+# Pr 0.500000
+# Pm 0.000000
+# Ps 0.000000
+# Pc 0.000000
+# Pcr 0.030000
+# aniso 0.000000
+# anisor 0.000000
