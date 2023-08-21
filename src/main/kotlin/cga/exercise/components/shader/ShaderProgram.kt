@@ -72,6 +72,9 @@ class ShaderProgram(vertexShaderPath: String, fragmentShaderPath: String) {
         }
     }
 
+
+
+
     // different setUniform() functions are added later during the course
 
     /**

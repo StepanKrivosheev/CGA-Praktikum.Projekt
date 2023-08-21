@@ -98,5 +98,6 @@ void main(){
     // gamma //
     color.xyz = gamma(color.xyz);
 
+
 }
 

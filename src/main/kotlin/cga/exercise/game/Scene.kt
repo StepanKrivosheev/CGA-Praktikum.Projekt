@@ -58,6 +58,8 @@ class Scene(private val window: GameWindow) {
     private var lastY: Double = window.windowHeight / 2.0
 
     private val testCube : Renderable = loadModel("assets/testCube.obj", 0f, 0f, 0f) ?: throw IllegalArgumentException("Could not load the model")
+    private var block: Renderable
+    val placedBlocks = mutableListOf<Renderable>()
 
 
     //scene setup
@@ -93,15 +95,16 @@ class Scene(private val window: GameWindow) {
 
         // blocks
 
-        fourBlock.translate(Vector3f(0f, 3f, 0f))
+        fourBlock.translate(Vector3f(0f, 20f, 0f))
         lBlock.translate(Vector3f(3f, 3f, 0f))
         lBlockReverse.translate(Vector3f(6f, 3f, 0f))
-        longBlock.translate(Vector3f(9f, 3f, 0f))
+        longBlock.translate(Vector3f(9f, 20f, 0f))
         tBlock.translate(Vector3f(-3f, 3f, 0f))
         zBlock.translate(Vector3f(-6f, 3f, 0f))
         zBlockReverse.translate(Vector3f(-9f, 3f, 0f))
 
         testCube.translate(Vector3f(0f, 2f, 0f))
+
 
 
         // bike
@@ -120,10 +123,11 @@ class Scene(private val window: GameWindow) {
 
         // lights
 
-        pointLight = PointLight(Vector3f(0f, 7f, 0f), Vector3f(1f, 1f, 1f))
-        pointLight1 = PointLight(Vector3f(-20f, 1f, -20f), Vector3f(0.5f, 1f, 0.5f))
-        pointLight2 = PointLight(Vector3f(20f, 1f, -20f), Vector3f(1f, 0.5f, 0.5f))
-        pointLight3 = PointLight(Vector3f(20f, 1f, 20f), Vector3f(0.5f, 0.5f, 1f))
+        pointLight = PointLight(Vector3f(-20f, 30f, 0f), Vector3f(100f, 100f, 10f))
+        pointLight1 = PointLight(Vector3f(20f, 30f, 0f), Vector3f(100f, 100f, 10f))
+        //pointLight1 = PointLight(Vector3f(-20f, 1f, -20f), Vector3f(0.5f, 1f, 0.5f))
+        pointLight2 = PointLight(Vector3f(20f, 30f, 20f), Vector3f(100f, 100f, 10f))
+        pointLight3 = PointLight(Vector3f(-20f, 30f, -200f), Vector3f(100f, 100f, 10f))
         pointLight4 = PointLight(Vector3f(-20f, 1f, 20f), Vector3f(1f, 1f, 0.5f))
 
         listPointLight.add(pointLight)
@@ -144,10 +148,18 @@ class Scene(private val window: GameWindow) {
         //initial opengl state
         enableDepthTest(GL_LESS)
         //enableFaceCulling(GL_CCW, GL_BACK)
-        glClearColor(0.2f, 0.2f, 0.2f, 1.0f); GLError.checkThrow()
-    }
+        glClearColor(0.52f, 0.52f, 0.52f, .0f); GLError.checkThrow()
 
+
+        block = spawner()
+        block.translate(Vector3f(0f, 20f, 0f))
+
+
+    }
+    var gate = true
     fun render(dt: Float, t: Float) {
+
+
         glClear(GL_COLOR_BUFFER_BIT or GL_DEPTH_BUFFER_BIT)
         staticShader.use()
 
@@ -162,13 +174,8 @@ class Scene(private val window: GameWindow) {
         onMouseMove(window.mousePos.xpos, window.mousePos.ypos)
         //tronBike.render(staticShader)
 
-        fourBlock.render(staticShader)
-        lBlock.render(staticShader)
-        lBlockReverse.render(staticShader)
-        longBlock.render(staticShader)
-        tBlock.render(staticShader)
-        zBlock.render(staticShader)
-        zBlockReverse.render(staticShader)
+        block.render(staticShader)
+
 
         //testCube.render(staticShader)
 
@@ -176,6 +183,44 @@ class Scene(private val window: GameWindow) {
         //spotLight.bind(staticShader, camera.getCalculateViewMatrix())
 
     }
+
+    fun spawner (): Renderable {
+
+        var block = testCube
+        val x =  (0..6).random()
+
+        when (x){
+            0 -> block = loadModel("assets/blocks/Z-Block.Reverse.obj", 0f, 0f, 0f) ?: throw IllegalArgumentException("Could not load the model")
+            1 -> block = loadModel("assets/blocks/Z-Block.obj", 0f, 0f, 0f) ?: throw IllegalArgumentException("Could not load the model")
+            2 -> block  = loadModel("assets/blocks/T-Block.obj", 0f, 0f, 0f) ?: throw IllegalArgumentException("Could not load the model")
+            3 -> block  = loadModel("assets/blocks/Lang.obj", 0f, 0f, 0f) ?: throw IllegalArgumentException("Could not load the model")
+            4 -> block = loadModel("assets/blocks/L-Block.Reverse.obj", 0f, 0f, 0f) ?: throw IllegalArgumentException("Could not load the model")
+            5 -> block  = loadModel("assets/blocks/L-Block.obj", 0f, 0f, 0f) ?: throw IllegalArgumentException("Could not load the model")
+            6 -> block  = loadModel("assets/blocks/4erBlock.obj", 0f, 0f, 0f) ?: throw IllegalArgumentException("Could not load the model")
+        }
+        if (placedBlocks.isNotEmpty()){
+            if (placedBlocks.last() == block) spawner()
+        }
+
+        block.translate(Vector3f(0f,20f,0f))
+        gate = false
+        return block
+    }
+    fun test ( block: Renderable?):Renderable {
+
+        if (block == null) {
+            val blockNew = spawner()
+            return blockNew
+        }
+        if (gate == true) {
+            val blockNew = spawner()
+            return blockNew
+        }
+        else return block
+
+    }
+
+
 
     fun update(dt: Float, t: Float) {
 
@@ -196,8 +241,24 @@ class Scene(private val window: GameWindow) {
         if (window.getKeyState(GLFW_KEY_A)) {
             camera.translate(Vector3f(-dt*5f, 0f, 0f))
         } else if (window.getKeyState(GLFW_KEY_D)) {
-            camera.translate(Vector3f(dt*5f, 0f, 0f))
+            camera.translate(Vector3f(dt *5f, 0f, 0f))
         }
+
+
+        fun fall(block:Renderable){
+            block.translate(Vector3f(0f, -.03f, 0f))
+        }
+
+        if (block.getPosition().y > 0f ) fall (block)
+        else {
+            placedBlocks.add(block)
+            block = spawner()
+        }
+
+        for(each in placedBlocks) {
+            each.render(staticShader)
+        }
+
 
     }
 
@@ -217,7 +278,7 @@ class Scene(private val window: GameWindow) {
         val offsetX : Float = ((lastX - xpos) * 0.002).toFloat()
         val offsetY : Float = ((lastY - ypos) * 0.002).toFloat()
         lastX = xpos
-        lastY = ypos
+        //lastY = ypos
 
         camera.rotate(0f, offsetX, 0f)
         camera.rotate(offsetY, 0f, 0f)
