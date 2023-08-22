@@ -117,8 +117,8 @@ class Scene(private val window: GameWindow) {
 
         //camera.parent = tronBike
 
-        //camera.rotate(Math.toRadians(-35f), 0f, 0f)
-        camera.translate(Vector3f(0.0f, 2.0f, 4.0f))
+        camera.rotate(Math.toRadians(-35f), 0f, 0f)
+        camera.translate(Vector3f(0.0f, 5.0f, 10.0f))
 
 
         // lights
@@ -183,25 +183,25 @@ class Scene(private val window: GameWindow) {
         //spotLight.bind(staticShader, camera.getCalculateViewMatrix())
 
     }
-
+    var last = 7
     fun spawner (): Renderable {
 
         var block = testCube
-        val x =  (0..6).random()
 
+        var x =  (0..6).random()
+        if (x== last) x =  (0..6-last).random()
         when (x){
-            0 -> block = loadModel("assets/blocks/Z-Block.Reverse.obj", 0f, 0f, 0f) ?: throw IllegalArgumentException("Could not load the model")
-            1 -> block = loadModel("assets/blocks/Z-Block.obj", 0f, 0f, 0f) ?: throw IllegalArgumentException("Could not load the model")
-            2 -> block  = loadModel("assets/blocks/T-Block.obj", 0f, 0f, 0f) ?: throw IllegalArgumentException("Could not load the model")
-            3 -> block  = loadModel("assets/blocks/Lang.obj", 0f, 0f, 0f) ?: throw IllegalArgumentException("Could not load the model")
-            4 -> block = loadModel("assets/blocks/L-Block.Reverse.obj", 0f, 0f, 0f) ?: throw IllegalArgumentException("Could not load the model")
-            5 -> block  = loadModel("assets/blocks/L-Block.obj", 0f, 0f, 0f) ?: throw IllegalArgumentException("Could not load the model")
-            6 -> block  = loadModel("assets/blocks/4erBlock.obj", 0f, 0f, 0f) ?: throw IllegalArgumentException("Could not load the model")
-        }
-        if (placedBlocks.isNotEmpty()){
-            if (placedBlocks.last() == block) spawner()
-        }
 
+            0 ->block = loadModel("assets/blocks/Z-Block.Reverse.obj", 0f, 0f, 0f) ?: throw IllegalArgumentException("Could not load the model")
+            1 ->block = loadModel("assets/blocks/Z-Block.obj", 0f, 0f, 0f) ?: throw IllegalArgumentException("Could not load the model")
+            2 ->block  = loadModel("assets/blocks/T-Block.obj", 0f, 0f, 0f) ?: throw IllegalArgumentException("Could not load the model")
+            3 ->block  = loadModel("assets/blocks/Lang.obj", 0f, 0f, 0f) ?: throw IllegalArgumentException("Could not load the model")
+            4 ->block = loadModel("assets/blocks/L-Block.Reverse.obj", 0f, 0f, 0f) ?: throw IllegalArgumentException("Could not load the model")
+            5 ->block  = loadModel("assets/blocks/L-Block.obj", 0f, 0f, 0f) ?: throw IllegalArgumentException("Could not load the model")
+            6 -> block  = loadModel("assets/blocks/4erBlock.obj", 0f, 0f,  0f) ?: throw IllegalArgumentException("Could not load the model")
+
+        }
+         last = x
         block.translate(Vector3f(0f,20f,0f))
         gate = false
         return block
@@ -268,20 +268,23 @@ class Scene(private val window: GameWindow) {
 
         // camera rotation
 
-        if (firstMouse)
-        {
-            lastX = xpos
+        if (firstMouse) {
             lastY = ypos
+            lastX = xpos
             firstMouse = false
         }
 
-        val offsetX : Float = ((lastX - xpos) * 0.002).toFloat()
-        val offsetY : Float = ((lastY - ypos) * 0.002).toFloat()
+        val sensitivity = 0.002f
+
+        val offsetY : Float = (lastY - ypos).toFloat() * sensitivity
+        val offsetX: Float = (lastX - xpos).toFloat() * sensitivity
+
         lastX = xpos
         //lastY = ypos
 
-        camera.rotate(0f, offsetX, 0f)
-        camera.rotate(offsetY, 0f, 0f)
+//        camera.rotate(0f, offsetX, 0f)
+//        camera.rotate(offsetY, 0f, 0f)
+        camera.rotateAroundPoint(0f, offsetX, 0f, Vector3f(0f, 0f, 0f))
 
     }
 
