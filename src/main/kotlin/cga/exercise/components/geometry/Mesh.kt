@@ -20,6 +20,7 @@ class Mesh(vertexdata: FloatArray, indexdata: IntArray, attributes: Array<Vertex
     private var vboId = 0
     private var iboId = 0
     private var indexcount = indexdata.size
+    private val vertexdata =vertexdata
 
     init {
 
@@ -62,4 +63,16 @@ class Mesh(vertexdata: FloatArray, indexdata: IntArray, attributes: Array<Vertex
         if (vboId != 0) glDeleteBuffers(vboId)
         if (vaoId != 0) glDeleteVertexArrays(vaoId)
     }
+    fun getVertexes(x: Boolean,y: Boolean, z:Boolean):List<List<Float>>{
+        var x = 0f
+        var vertexes = vertexdata.toList().chunked(3)
+
+
+
+        for(each in vertexes){
+
+        }
+
+
+
 }

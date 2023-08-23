@@ -31,16 +31,16 @@ class Scene(private val window: GameWindow) {
     private val staticShader: ShaderProgram = ShaderProgram("assets/shaders/tron_vert.glsl", "assets/shaders/tron_frag.glsl")
 
 
-    private val ground: Mesh
+    //private val ground: Mesh
     private val groundObj = OBJLoader.loadOBJ("assets/models/ground.obj")
     private val groundList = mutableListOf<Mesh>()
-    private val groundRenderable : Renderable
+    //private val groundRenderable : Renderable
     private val camera = TronCamera()
     private val pointLight : PointLight
     private val pointLight1 : PointLight
     private val pointLight2 : PointLight
     private val pointLight3 : PointLight
-    private val pointLight4 : PointLight
+    //private val pointLight4 : PointLight
     private val pointLights : PointLights
     private val listPointLight = mutableListOf<PointLight>()
     private val spotLight : SpotLight
@@ -53,6 +53,7 @@ class Scene(private val window: GameWindow) {
     private val tBlock : Renderable = loadModel("assets/blocks/T-Block.obj", 0f, 0f, 0f) ?: throw IllegalArgumentException("Could not load the model")
     private val zBlock : Renderable = loadModel("assets/blocks/Z-Block.obj", 0f, 0f, 0f) ?: throw IllegalArgumentException("Could not load the model")
     private val zBlockReverse : Renderable = loadModel("assets/blocks/Z-Block.Reverse.obj", 0f, 0f, 0f) ?: throw IllegalArgumentException("Could not load the model")
+    private val ground : Renderable = loadModel("assets/blocks/ground.obj", 0f, 0f, 0f) ?: throw IllegalArgumentException("Could not load the model")
     private var firstMouse : Boolean = true
     private var lastX: Double = window.windowWidth / 2.0
     private var lastY: Double = window.windowHeight / 2.0
@@ -87,10 +88,10 @@ class Scene(private val window: GameWindow) {
 
         val groundMaterial = Material(groundDiff, groundEmit, groundSpec, 60.0f, Vector2f(64.0f, 64.0f))
 
-        ground = Mesh(vertexData1, indexData1, objAttributes1, groundMaterial)
+        //ground = Mesh(vertexData1, indexData1, objAttributes1, groundMaterial)
 
-        groundList.add(ground)
-        groundRenderable = Renderable(groundList)
+        //groundList.add(ground)
+        //groundRenderable = Renderable(groundList)
 
 
         // blocks
@@ -118,23 +119,17 @@ class Scene(private val window: GameWindow) {
         //camera.parent = tronBike
 
         camera.rotate(Math.toRadians(-35f), 0f, 0f)
-        camera.translate(Vector3f(0.0f, 5.0f, 10.0f))
+        camera.translate(Vector3f(0.0f, 5.0f, 30.0f))
 
 
         // lights
 
-        pointLight = PointLight(Vector3f(-20f, 30f, 0f), Vector3f(100f, 100f, 10f))
-        pointLight1 = PointLight(Vector3f(20f, 30f, 0f), Vector3f(100f, 100f, 10f))
-        //pointLight1 = PointLight(Vector3f(-20f, 1f, -20f), Vector3f(0.5f, 1f, 0.5f))
-        pointLight2 = PointLight(Vector3f(20f, 30f, 20f), Vector3f(100f, 100f, 10f))
-        pointLight3 = PointLight(Vector3f(-20f, 30f, -200f), Vector3f(100f, 100f, 10f))
-        pointLight4 = PointLight(Vector3f(-20f, 1f, 20f), Vector3f(1f, 1f, 0.5f))
+        pointLight = PointLight(Vector3f(4f, 30f, 4f), Vector3f(100f, 100f, 100f))
+        pointLight1 = PointLight(Vector3f(-4f, 30f, -4f), Vector3f(100f, 100f, 100f))
+        pointLight2 = PointLight(Vector3f(4f, 30f, -4f), Vector3f(100f, 100f, 100f))
+        pointLight3 = PointLight(Vector3f(-4f, 30f, 4f), Vector3f(100f, 100f, 100f))
 
         listPointLight.add(pointLight)
-        listPointLight.add(pointLight1)
-        listPointLight.add(pointLight2)
-        listPointLight.add(pointLight3)
-        listPointLight.add(pointLight4)
 
         pointLights = PointLights(listPointLight)
 
@@ -144,17 +139,15 @@ class Scene(private val window: GameWindow) {
         //pointLight.parent = tronBike
         //spotLight.parent = tronBike
 
+        block = spawner()
 
+        for (each in block.meshes){
+
+        }
         //initial opengl state
         enableDepthTest(GL_LESS)
         //enableFaceCulling(GL_CCW, GL_BACK)
-        glClearColor(0.52f, 0.52f, 0.52f, .0f); GLError.checkThrow()
-
-
-        block = spawner()
-        block.translate(Vector3f(0f, 20f, 0f))
-
-
+        glClearColor(0.9f, 0.9f, 0.9f, .9f); GLError.checkThrow()
     }
     var gate = true
     fun render(dt: Float, t: Float) {
@@ -166,7 +159,7 @@ class Scene(private val window: GameWindow) {
         staticShader.setUniform("staticColor", Vector3f(1f, 1f, 1f))
 
         camera.bind(staticShader)
-        groundRenderable.render(staticShader)
+        ground.render(staticShader)
 
         //wall1.render(staticShader)
 
@@ -182,74 +175,53 @@ class Scene(private val window: GameWindow) {
         pointLights.render(staticShader)
         //spotLight.bind(staticShader, camera.getCalculateViewMatrix())
 
+        //println(block.meshes[0].getVertexes(true,true,true))
     }
     var last = 7
     fun spawner (): Renderable {
 
         var block = testCube
 
+        var pitch =  Math.toRadians(listOf(0f,90f,180f,270f).random())
+        var yaw   =  Math.toRadians(listOf(0f,90f,180f,270f).random())
+        var roll  =  Math.toRadians(listOf(0f,90f,180f,270f).random())
+
         var x =  (0..6).random()
         if (x== last) x =  (0..6-last).random()
         when (x){
 
-            0 ->block = loadModel("assets/blocks/Z-Block.Reverse.obj", 0f, 0f, 0f) ?: throw IllegalArgumentException("Could not load the model")
-            1 ->block = loadModel("assets/blocks/Z-Block.obj", 0f, 0f, 0f) ?: throw IllegalArgumentException("Could not load the model")
-            2 ->block  = loadModel("assets/blocks/T-Block.obj", 0f, 0f, 0f) ?: throw IllegalArgumentException("Could not load the model")
-            3 ->block  = loadModel("assets/blocks/Lang.obj", 0f, 0f, 0f) ?: throw IllegalArgumentException("Could not load the model")
-            4 ->block = loadModel("assets/blocks/L-Block.Reverse.obj", 0f, 0f, 0f) ?: throw IllegalArgumentException("Could not load the model")
-            5 ->block  = loadModel("assets/blocks/L-Block.obj", 0f, 0f, 0f) ?: throw IllegalArgumentException("Could not load the model")
-            6 -> block  = loadModel("assets/blocks/4erBlock.obj", 0f, 0f,  0f) ?: throw IllegalArgumentException("Could not load the model")
+            0 ->block = loadModel("assets/blocks/Z-Block.Reverse.obj", pitch,yaw,roll) ?: throw IllegalArgumentException("Could not load the model")
+            1 ->block = loadModel("assets/blocks/Z-Block.obj", pitch,yaw,roll) ?: throw IllegalArgumentException("Could not load the model")
+            2 ->block  = loadModel("assets/blocks/T-Block.obj", pitch,yaw,roll) ?: throw IllegalArgumentException("Could not load the model")
+            3 ->block  = loadModel("assets/blocks/Lang.obj", pitch,yaw,roll) ?: throw IllegalArgumentException("Could not load the model")
+            4 ->block = loadModel("assets/blocks/L-Block.Reverse.obj", pitch,yaw,roll) ?: throw IllegalArgumentException("Could not load the model")
+            5 ->block  = loadModel("assets/blocks/L-Block.obj", pitch,yaw,roll) ?: throw IllegalArgumentException("Could not load the model")
+            6 ->block  = loadModel("assets/blocks/4erBlock.obj", pitch,yaw,roll) ?: throw IllegalArgumentException("Could not load the model")
 
         }
-         last = x
+
+        last = x
         block.translate(Vector3f(0f,20f,0f))
-        gate = false
         return block
     }
-    fun test ( block: Renderable?):Renderable {
 
-        if (block == null) {
-            val blockNew = spawner()
-            return blockNew
-        }
-        if (gate == true) {
-            val blockNew = spawner()
-            return blockNew
-        }
-        else return block
 
+
+
+    fun fall(block:Renderable){
+        block.preTranslate(Vector3f(0f, -0.001f, 0f))
     }
-
 
 
     fun update(dt: Float, t: Float) {
 
-        // camera movement
 
-        if (window.getKeyState(GLFW_KEY_W)) {
-            camera.translate(Vector3f(0f, 0f, -dt*5f))
-        } else if (window.getKeyState(GLFW_KEY_S)) {
-            camera.translate(Vector3f(0f, 0f , dt*5f))
+
+        //camera.rotateAroundPoint(0f,.0001f,0f,Vector3f(0f,0f,0f)
+
+        if (block.getPosition().y > 2f ) {
+            fall(block)
         }
-
-        if (window.getKeyState(GLFW_KEY_SPACE)) {
-            camera.translate(Vector3f(0f, dt*5f, 0f))
-        } else if (window.getKeyState(GLFW_KEY_LEFT_CONTROL)) {
-            camera.translate(Vector3f(0f, -dt*5f, 0f))
-        }
-
-        if (window.getKeyState(GLFW_KEY_A)) {
-            camera.translate(Vector3f(-dt*5f, 0f, 0f))
-        } else if (window.getKeyState(GLFW_KEY_D)) {
-            camera.translate(Vector3f(dt *5f, 0f, 0f))
-        }
-
-
-        fun fall(block:Renderable){
-            block.translate(Vector3f(0f, -.03f, 0f))
-        }
-
-        if (block.getPosition().y > 0f ) fall (block)
         else {
             placedBlocks.add(block)
             block = spawner()
@@ -259,10 +231,27 @@ class Scene(private val window: GameWindow) {
             each.render(staticShader)
         }
 
-
+        if(window.getKeyState(GLFW_KEY_SPACE))block.preTranslate(Vector3f(0f, -.003f, 0f))
     }
 
-    fun onKey(key: Int, scancode: Int, action: Int, mode: Int) {}
+    fun onKey(key: Int, scancode: Int, action: Int, mode: Int)
+    {
+        val movementSpeed = 1.0f
+        val rotation = Math.toRadians(90.0f)
+
+        if (action == GLFW_PRESS || action == GLFW_REPEAT) {
+            when (key) {
+                GLFW_KEY_W -> block.preTranslate(Vector3f(0f, 0f, -movementSpeed))
+                GLFW_KEY_S -> block.preTranslate(Vector3f(0f, 0f, movementSpeed))
+                GLFW_KEY_A -> block.preTranslate(Vector3f(-movementSpeed, 0f, 0f))
+                GLFW_KEY_D -> block.preTranslate(Vector3f(movementSpeed, 0f, 0f))
+
+                GLFW_KEY_E -> block.rotate(rotation, 0f, 0f)
+                GLFW_KEY_R -> block.rotate(0f, rotation, 0f)
+                GLFW_KEY_T -> block.rotate(0f, 0f, rotation)
+            }
+        }
+    }
 
     fun onMouseMove(xpos: Double, ypos: Double) {
 
@@ -280,10 +269,10 @@ class Scene(private val window: GameWindow) {
         val offsetX: Float = (lastX - xpos).toFloat() * sensitivity
 
         lastX = xpos
-        //lastY = ypos
+        lastY = ypos
 
-//        camera.rotate(0f, offsetX, 0f)
-//        camera.rotate(offsetY, 0f, 0f)
+        camera.rotate(0f, offsetX, 0f)
+        camera.rotate(offsetY, 0f, 0f)
         camera.rotateAroundPoint(0f, offsetX, 0f, Vector3f(0f, 0f, 0f))
 
     }

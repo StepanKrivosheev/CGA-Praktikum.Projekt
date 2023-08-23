@@ -8,10 +8,10 @@ import org.joml.Vector2f
 import org.joml.Vector3f
 import kotlin.math.PI
 
-class TronCamera (val fov : Float = Math.toRadians(90f),
+class TronCamera (val fov : Float = Math.toRadians(60f),
                   val aspectRatio : Float = 16f/9f,
                   val nearPlane : Float = 0.1f,
-                  val farPlane : Float = 100f) : Transformable(), ICamera {
+                  val farPlane : Float = 60f) : Transformable(), ICamera {
     override fun getCalculateViewMatrix(): Matrix4f {
         return Matrix4f().lookAt(getWorldPosition(), getWorldPosition().sub(getWorldZAxis()), getWorldYAxis())
     }
